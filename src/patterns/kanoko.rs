@@ -1,7 +1,10 @@
-use itertools::Itertools;
+use itertools::{Itertools, iproduct};
 use rand_distr::Distribution;
 use std::{f64::consts::PI, iter::zip, ops::Add};
-use svg::Document;
+use svg::{
+    Document,
+    node::element::{Group, Path, path::Data},
+};
 
 use color::{AlphaColor, Srgb};
 use rand_distr::Normal;
@@ -26,7 +29,7 @@ impl Into<f64> for Grid {
 }
 
 #[derive(Debug, Clone, Copy)]
-struct Index {
+pub struct Index {
     pub x: u16,
     pub y: u16,
 }
@@ -43,6 +46,12 @@ impl Coordinate {
             x: self.x + t * (self.x - other.x),
             y: self.y + t * (self.y - other.y),
         }
+    }
+}
+
+impl From<Coordinate> for (f64, f64) {
+    fn from(val: Coordinate) -> Self {
+        (val.x, val.y)
     }
 }
 
@@ -67,8 +76,21 @@ pub struct KanokoGrid {
 }
 
 impl KanokoGrid {
-    pub fn render(&self, index_filter: Option<impl Fn(Index) -> bool>) {
-        todo!()
+    pub fn render(&self, index_filter: impl Fn(Index) -> bool) {
+        let mut document = Document::new();
+
+        for (x, y) in iproduct!(0..self.grid_size.x, 0..self.grid_size.y) {
+            let index = Index { x, y };
+            let coord = self.index_to_coord(&index);
+            let group = self
+                .unit
+                .generate_group(&self.grid)
+                .set("transform", format!("translate({},{})", coord.x, coord.y));
+
+            document = document.add(group)
+        }
+
+        svg::save("image.svg", &document).unwrap();
     }
 
     fn index_to_coord(&self, index: &Index) -> Coordinate {
@@ -96,7 +118,33 @@ pub struct KanokoUnit {
 }
 
 impl KanokoUnit {
-    fn generate_corner_coords(&self, grid: &Grid, size: f64) -> Vec<Coordinate> {
+    fn generate_group(&self, grid: &Grid) -> Group {
+        let group = Group::new()
+            .add(KanokoUnit::generate_path(grid, &self.size).set("fill", "black"))
+            .add(KanokoUnit::generate_path(grid, &self.spot_size).set("fill", "white"));
+
+        group
+    }
+    fn generate_path(grid: &Grid, size: &f64) -> Path {
+        let corner_coords = KanokoUnit::generate_corner_coords(grid, size);
+        println!("CORNER:{:#?}", corner_coords);
+        let side_coords = KanokoUnit::generate_side_coords(&corner_coords);
+        println!("{:#?}", side_coords);
+
+        let mut data = Data::new();
+
+        for ((start, end), c) in zip(
+            side_coords.iter().circular_tuple_windows(),
+            corner_coords.iter(),
+        ) {
+            data = data
+                .move_to((start.x, start.y))
+                .cubic_curve_to((c.x, c.y, c.x, c.y, end.x, end.y));
+        }
+
+        Path::new().set("stroke", "none").set("d", data)
+    }
+    fn generate_corner_coords(grid: &Grid, size: &f64) -> Vec<Coordinate> {
         (1..=*grid as u8)
             .map(|i| {
                 let angle = 2_f64 * PI * i as f64 / grid.into_f64();
@@ -106,7 +154,20 @@ impl KanokoUnit {
                     y: size * angle.sin(),
                 }
             })
-            .map(|spot| self.add_jitter(spot))
+            .collect()
+    }
+
+    fn generate_side_coords(corner_coords: &Vec<Coordinate>) -> Vec<Coordinate> {
+        // let normal = Normal::new(0.5, 0.1).unwrap();
+
+        corner_coords
+            .iter()
+            .circular_tuple_windows()
+            .map(|(coord_1, coord_2)| {
+                coord_1.lerp(
+                    coord_2, 0.5, // (normal.sample(&mut rand::rng()) as f64).clamp(0.0, 1.0),
+                )
+            })
             .collect()
     }
 
@@ -118,20 +179,5 @@ impl KanokoUnit {
         };
 
         coord + jitter
-    }
-
-    fn generate_side_coords(&self, corner_coords: &Vec<Coordinate>) -> Vec<Coordinate> {
-        let normal = Normal::new(0.5, 0.1).unwrap();
-
-        corner_coords
-            .iter()
-            .circular_tuple_windows()
-            .map(|(coord_1, coord_2)| {
-                coord_1.lerp(
-                    coord_2,
-                    (normal.sample(&mut rand::rng()) as f64).clamp(0.0, 1.0),
-                )
-            })
-            .collect()
     }
 }

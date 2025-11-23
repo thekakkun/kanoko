@@ -1,3 +1,3 @@
 pub mod patterns;
 
-pub use patterns::kanoko::{KanokoGrid, KanokoUnit};
+pub use patterns::kanoko::{Index, KanokoGrid, KanokoUnit};
