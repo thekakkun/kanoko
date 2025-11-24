@@ -1,6 +1,6 @@
 use itertools::{Itertools, iproduct};
 use rand_distr::Distribution;
-use std::{f64::consts::PI, iter::zip, ops::Add};
+use std::{collections::VecDeque, f64::consts::PI, ops::Add};
 use svg::{
     Document,
     node::element::{Group, Path, path::Data},
@@ -16,15 +16,9 @@ pub enum Grid {
     Hexagon = 6,
 }
 
-impl Grid {
-    fn into_f64(&self) -> f64 {
-        *self as u8 as f64
-    }
-}
-
-impl Into<f64> for Grid {
-    fn into(self) -> f64 {
-        self as u8 as f64
+impl From<Grid> for f64 {
+    fn from(value: Grid) -> Self {
+        value as u8 as f64
     }
 }
 
@@ -43,8 +37,8 @@ struct Coordinate {
 impl Coordinate {
     fn lerp(&self, other: &Self, t: f64) -> Self {
         Self {
-            x: self.x + t * (self.x - other.x),
-            y: self.y + t * (self.y - other.y),
+            x: self.x + t * (other.x - self.x),
+            y: self.y + t * (other.y - self.y),
         }
     }
 }
@@ -82,10 +76,14 @@ impl KanokoGrid {
         for (x, y) in iproduct!(0..self.grid_size.x, 0..self.grid_size.y) {
             let index = Index { x, y };
             let coord = self.index_to_coord(&index);
-            let group = self
-                .unit
-                .generate_group(&self.grid)
-                .set("transform", format!("translate({},{})", coord.x, coord.y));
+            let group = self.unit.generate_group(&self.grid).set(
+                "transform",
+                format!(
+                    "translate({},{})",
+                    coord.x + self.cell_size,
+                    coord.y + self.cell_size
+                ),
+            );
 
             document = document.add(group)
         }
@@ -97,9 +95,9 @@ impl KanokoGrid {
         match self.grid {
             Grid::Triangle => todo!(),
             Grid::Diamond => {
-                let x = index.x as f64 * self.cell_size / 1_f64.sqrt();
-                let y = index.y as f64 * self.cell_size.sqrt()
-                    + (index.x % 2) as f64 * self.cell_size / 1_f64.sqrt();
+                let x = index.x as f64 * self.cell_size / 2_f64.sqrt() * 2.0;
+                let y = index.y as f64 * self.cell_size * 2_f64.sqrt() * 2.0
+                    + (index.x % 2) as f64 * self.cell_size / 2_f64.sqrt() * 2.0;
 
                 Coordinate { x, y }
             }
@@ -119,56 +117,70 @@ pub struct KanokoUnit {
 
 impl KanokoUnit {
     fn generate_group(&self, grid: &Grid) -> Group {
-        let group = Group::new()
-            .add(KanokoUnit::generate_path(grid, &self.size).set("fill", "black"))
-            .add(KanokoUnit::generate_path(grid, &self.spot_size).set("fill", "white"));
-
-        group
+        Group::new()
+            .add(self.generate_path(grid, &self.size).set("fill", "black"))
+            .add(
+                self.generate_path(grid, &self.spot_size)
+                    .set("fill", "white"),
+            )
     }
-    fn generate_path(grid: &Grid, size: &f64) -> Path {
-        let corner_coords = KanokoUnit::generate_corner_coords(grid, size);
-        println!("CORNER:{:#?}", corner_coords);
-        let side_coords = KanokoUnit::generate_side_coords(&corner_coords);
-        println!("{:#?}", side_coords);
+
+    fn generate_path(&self, grid: &Grid, size: &f64) -> Path {
+        let corner_coords = self.generate_corner_coords(grid, size);
+        let side_coords = self.generate_side_coords(&corner_coords);
 
         let mut data = Data::new();
 
-        for ((start, end), c) in zip(
-            side_coords.iter().circular_tuple_windows(),
-            corner_coords.iter(),
-        ) {
-            data = data
-                .move_to((start.x, start.y))
-                .cubic_curve_to((c.x, c.y, c.x, c.y, end.x, end.y));
+        if let Some(first) = side_coords.first() {
+            data = data.move_to((first.x, first.y));
         }
+
+        for (end, c) in side_coords
+            .iter()
+            .skip(1)
+            .chain(side_coords.first())
+            .zip(corner_coords.iter())
+        {
+            data = data.cubic_curve_to((c.x, c.y, c.x, c.y, end.x, end.y));
+        }
+
+        data = data.close();
 
         Path::new().set("stroke", "none").set("d", data)
     }
-    fn generate_corner_coords(grid: &Grid, size: &f64) -> Vec<Coordinate> {
+    fn generate_corner_coords(&self, grid: &Grid, size: &f64) -> Vec<Coordinate> {
         (1..=*grid as u8)
             .map(|i| {
-                let angle = 2_f64 * PI * i as f64 / grid.into_f64();
+                let angle: f64 = 2_f64 * PI * i as f64 / f64::from(*grid);
 
                 Coordinate {
                     x: size * angle.cos(),
                     y: size * angle.sin(),
                 }
             })
+            .map(|coord| self.add_jitter(coord))
             .collect()
     }
 
-    fn generate_side_coords(corner_coords: &Vec<Coordinate>) -> Vec<Coordinate> {
-        // let normal = Normal::new(0.5, 0.1).unwrap();
+    fn generate_side_coords(&self, corner_coords: &[Coordinate]) -> Vec<Coordinate> {
+        let normal = Normal::new(0.5, 0.1).unwrap();
 
-        corner_coords
+        let mut side_coords: VecDeque<Coordinate> = corner_coords
             .iter()
             .circular_tuple_windows()
             .map(|(coord_1, coord_2)| {
                 coord_1.lerp(
-                    coord_2, 0.5, // (normal.sample(&mut rand::rng()) as f64).clamp(0.0, 1.0),
+                    coord_2,
+                    (normal.sample(&mut rand::rng()) as f64).clamp(0.1, 0.9),
                 )
             })
-            .collect()
+            .collect();
+
+        if let Some(last) = side_coords.pop_back() {
+            side_coords.push_front(last);
+        }
+
+        side_coords.into()
     }
 
     fn add_jitter(&self, coord: Coordinate) -> Coordinate {
