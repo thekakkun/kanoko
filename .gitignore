@@ -27,4 +27,4 @@ target
 
 # Example output
 
-kanoko.svg
+/examples/*.svg
