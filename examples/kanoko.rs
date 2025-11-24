@@ -1,4 +1,4 @@
-use kanoko::{Coordinate, Index, KanokoGrid, hex_to_alpha_color, patterns::kanoko::Grid};
+use kanoko::{Coordinate, Index, Kanoko, hex_to_alpha_color, patterns::kanoko::Grid};
 use rand::{Rng, seq::IndexedRandom};
 
 fn main() {
@@ -8,7 +8,7 @@ fn main() {
         hex_to_alpha_color(colors.choose(&mut rand::rng()).unwrap()).unwrap()
     });
 
-    let kanoko_grid = KanokoGrid {
+    let kanoko_grid = Kanoko {
         canvas_size: Coordinate {
             x: 2560.0,
             y: 1440.0,
@@ -24,5 +24,7 @@ fn main() {
         standard_deviation: 2.5,
     };
 
-    kanoko_grid.render(|index| index.x as f64 * (&mut rand::rng()).random::<f64>() < 15.0);
+    let document =
+        kanoko_grid.render(|index| index.x as f64 * (&mut rand::rng()).random::<f64>() < 15.0);
+    svg::save("kanoko.svg", &document).unwrap();
 }

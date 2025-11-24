@@ -60,7 +60,7 @@ impl Add for Coordinate {
     }
 }
 
-pub struct KanokoGrid {
+pub struct Kanoko {
     // Canvas dimensions
     pub canvas_size: Coordinate,
     pub background_color: AlphaColor<Srgb>,
@@ -80,9 +80,9 @@ pub struct KanokoGrid {
     pub standard_deviation: f64,
 }
 
-impl KanokoGrid {
+impl Kanoko {
     // Public API
-    pub fn render(&self, index_filter: impl Fn(Index) -> bool) {
+    pub fn render(&self, index_filter: impl Fn(Index) -> bool) -> Document {
         let [r, g, b, a] = self.background_color.to_rgba8().to_u8_array();
         let opacity = a as f64 / 255.0;
 
@@ -120,7 +120,7 @@ impl KanokoGrid {
             }
         }
 
-        svg::save("image.svg", &document).unwrap();
+        document
     }
 
     fn calculate_grid_dimensions(&self) -> Coordinate {
