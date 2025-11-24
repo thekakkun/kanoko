@@ -3,6 +3,7 @@ use kanoko::{
     patterns::kanoko::{Grid, LayerConfig},
 };
 
+/// An example with minimal randomization, using traditional Japanese tie-dye colors.
 fn main() {
     let background_color = hex_to_alpha_color("#393c7d").unwrap();
 
@@ -13,7 +14,7 @@ fn main() {
         },
         background_color,
         Grid::Diamond,
-        Index { x: 25, y: 30 },
+        Index { x: 25, y: 15 },
         30.0,
     );
     kanoko_grid.layers.push(LayerConfig {
