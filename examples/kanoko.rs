@@ -2,11 +2,15 @@ use kanoko::{Coordinate, Index, Kanoko, hex_to_alpha_color, patterns::kanoko::Gr
 use rand::{Rng, seq::IndexedRandom};
 
 fn main() {
+    let mut rng = rand::rng();
+
     let background_color = hex_to_alpha_color("#282828").unwrap();
     let color_fn = Box::new(|_| {
         let colors = vec!["#98971a", "#458588", "#a89984", "#d79921", "#ebdbb2"];
         hex_to_alpha_color(colors.choose(&mut rand::rng()).unwrap()).unwrap()
     });
+    let cell_size = rng.random_range(10.0..200.0);
+    let size = rng.random_range(10.0..cell_size);
 
     let kanoko_grid = Kanoko {
         canvas_size: Coordinate {
@@ -15,16 +19,18 @@ fn main() {
         },
         background_color,
         grid: Grid::Diamond,
-        grid_size: Index { x: 50, y: 50 },
-        cell_size: 50.0,
-        size: 50.0,
+        grid_size: Index {
+            x: rng.random_range(5..50),
+            y: rng.random_range(1..50),
+        },
+        cell_size,
+        size,
         color_fn,
-        spot_size: 20.0,
+        spot_size: size * rng.random_range(0.1..0.9),
         spot_color_fn: Box::new(move |_| background_color),
-        standard_deviation: 2.5,
+        standard_deviation: cell_size * rng.random_range(0.025..0.035),
     };
 
-    let document =
-        kanoko_grid.render(|index| index.x as f64 * (&mut rand::rng()).random::<f64>() < 15.0);
+    let document = kanoko_grid.render(|_| rand::rng().random_bool(0.9));
     svg::save("kanoko.svg", &document).unwrap();
 }

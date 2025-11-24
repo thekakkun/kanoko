@@ -1,5 +1,5 @@
 use itertools::{Itertools, iproduct};
-use rand_distr::{Distribution, num_traits::Float};
+use rand_distr::Distribution;
 use std::{collections::VecDeque, f64::consts::PI, ops::Add};
 use svg::{
     Document,
