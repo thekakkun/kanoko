@@ -1,6 +1,6 @@
 use kanoko::{
     Coordinate, Index, Kanoko, hex_to_alpha_color,
-    patterns::kanoko::{Grid, LayerConfig},
+    patterns::kanoko::{Grid, SpotConfig},
 };
 use rand::{Rng, seq::IndexedRandom};
 
@@ -17,25 +17,26 @@ fn main() {
     let size = rng.random_range(10.0..cell_size);
     let standard_deviation = cell_size * rng.random_range(0.025..0.035);
 
-    let mut kanoko_grid = Kanoko::new(
-        Coordinate {
+    let mut kanoko_grid = Kanoko {
+        canvas_size: Coordinate {
             x: 2560.0,
             y: 1440.0,
         },
         background_color,
-        Grid::Diamond,
-        Index {
+        grid: Grid::Diamond,
+        grid_size: Index {
             x: rng.random_range(5..50),
             y: rng.random_range(1..50),
         },
         cell_size,
-    );
-    kanoko_grid.layers.push(LayerConfig {
+        ..Default::default()
+    };
+    kanoko_grid.spots.push(SpotConfig {
         size,
         color_fn,
         standard_deviation: Some(standard_deviation),
     });
-    kanoko_grid.layers.push(LayerConfig {
+    kanoko_grid.spots.push(SpotConfig {
         size: size * rng.random_range(0.1..0.9),
         color_fn: Box::new(move |_| background_color),
         standard_deviation: Some(standard_deviation),

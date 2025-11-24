@@ -1,38 +1,39 @@
 use color::AlphaColor;
 use kanoko::{
     Coordinate, Index, Kanoko, hex_to_alpha_color,
-    patterns::kanoko::{Grid, LayerConfig},
+    patterns::kanoko::{Grid, SpotConfig},
 };
 use rand::Rng;
 
 /// An example of using multiple layers to create patterns based on a nazar amulet.
 fn main() {
-    let mut kanoko_grid = Kanoko::new(
-        Coordinate {
+    let mut kanoko_grid = Kanoko {
+        canvas_size: Coordinate {
             x: 2560.0,
             y: 1440.0,
         },
-        AlphaColor::WHITE,
-        Grid::Diamond,
-        Index { x: 5, y: 5 },
-        200.0,
-    );
-    kanoko_grid.layers.push(LayerConfig {
+        background_color: AlphaColor::WHITE,
+        grid: Grid::Diamond,
+        grid_size: Index { x: 5, y: 5 },
+        cell_size: 200.0,
+        ..Default::default()
+    };
+    kanoko_grid.spots.push(SpotConfig {
         size: 200.0,
         color_fn: Box::new(|_| hex_to_alpha_color("#070d97").unwrap()),
         standard_deviation: Some(8.0),
     });
-    kanoko_grid.layers.push(LayerConfig {
+    kanoko_grid.spots.push(SpotConfig {
         size: 150.0,
         color_fn: Box::new(|_| AlphaColor::WHITE),
         standard_deviation: Some(8.0),
     });
-    kanoko_grid.layers.push(LayerConfig {
+    kanoko_grid.spots.push(SpotConfig {
         size: 100.0,
         color_fn: Box::new(|_| hex_to_alpha_color("#73bff1").unwrap()),
         standard_deviation: Some(8.0),
     });
-    kanoko_grid.layers.push(LayerConfig {
+    kanoko_grid.spots.push(SpotConfig {
         size: 50.0,
         color_fn: Box::new(|_| AlphaColor::BLACK),
         standard_deviation: Some(8.0),

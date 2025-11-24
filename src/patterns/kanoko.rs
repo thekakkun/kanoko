@@ -1,6 +1,10 @@
 use itertools::{Itertools, iproduct};
 use rand_distr::Distribution;
-use std::{collections::VecDeque, f64::consts::PI, ops::Add};
+use std::{
+    collections::VecDeque,
+    f64::consts::{PI, SQRT_2},
+    ops::Add,
+};
 use svg::{
     Document,
     node::element::{Group, Path, Rectangle, path::Data},
@@ -43,12 +47,6 @@ impl Coordinate {
     }
 }
 
-impl From<Coordinate> for (f64, f64) {
-    fn from(val: Coordinate) -> Self {
-        (val.x, val.y)
-    }
-}
-
 impl Add for Coordinate {
     type Output = Self;
 
@@ -60,7 +58,7 @@ impl Add for Coordinate {
     }
 }
 
-pub struct LayerConfig {
+pub struct SpotConfig {
     pub size: f64,
     pub color_fn: Box<dyn Fn(Index) -> AlphaColor<Srgb>>,
     pub standard_deviation: Option<f64>,
@@ -76,28 +74,24 @@ pub struct Kanoko {
     pub grid_size: Index,
     pub cell_size: f64,
 
-    // Layers
-    pub layers: Vec<LayerConfig>,
+    // Spots
+    pub spots: Vec<SpotConfig>,
+}
+
+impl Default for Kanoko {
+    fn default() -> Self {
+        Self {
+            canvas_size: Coordinate { x: 800.0, y: 600.0 },
+            background_color: AlphaColor::BLACK,
+            grid: Grid::Diamond,
+            grid_size: Index { x: 10, y: 10 },
+            cell_size: 20.0,
+            spots: vec![],
+        }
+    }
 }
 
 impl Kanoko {
-    pub fn new(
-        canvas_size: Coordinate,
-        background_color: AlphaColor<Srgb>,
-        grid: Grid,
-        grid_size: Index,
-        cell_size: f64,
-    ) -> Self {
-        Self {
-            canvas_size,
-            background_color,
-            grid,
-            grid_size,
-            cell_size,
-            layers: Vec::new(),
-        }
-    }
-
     pub fn render(&self, index_filter: impl Fn(Index) -> bool) -> Document {
         let [r, g, b, a] = self.background_color.to_rgba8().to_u8_array();
         let opacity = a as f64 / 255.0;
@@ -115,12 +109,8 @@ impl Kanoko {
 
         document = document.add(background_rect);
 
-        let max_size = self
-            .layers
-            .iter()
-            .map(|layer| layer.size)
-            .fold(0.0, f64::max);
-        let grid_size = self.calculate_grid_dimensions();
+        let max_size = self.spots.iter().map(|spot| spot.size).fold(0.0, f64::max);
+        let grid_size = self.calculate_grid_dimensions(max_size);
         let offset_x = (self.canvas_size.x - grid_size.x) / 2.0 + max_size;
         let offset_y = (self.canvas_size.y - grid_size.y) / 2.0 + max_size;
 
@@ -144,19 +134,13 @@ impl Kanoko {
         document
     }
 
-    fn calculate_grid_dimensions(&self) -> Coordinate {
-        let max_size = self
-            .layers
-            .iter()
-            .map(|layer| layer.size)
-            .fold(0.0, f64::max);
-
+    fn calculate_grid_dimensions(&self, max_size: f64) -> Coordinate {
         match self.grid {
             Grid::Triangle => todo!(),
             Grid::Diamond => {
-                let max_x = 2.0 * (self.grid_size.x - 1) as f64 * self.cell_size * 2_f64.sqrt()
-                    + (self.grid_size.y.min(2) - 1) as f64 * 2.0 * self.cell_size / 2_f64.sqrt();
-                let max_y = 2.0 * (self.grid_size.y - 1) as f64 * self.cell_size / 2_f64.sqrt();
+                let max_x = 2.0 * (self.grid_size.x - 1) as f64 * self.cell_size * SQRT_2
+                    + (self.grid_size.y.min(2) - 1) as f64 * 2.0 * self.cell_size / SQRT_2;
+                let max_y = 2.0 * (self.grid_size.y - 1) as f64 * self.cell_size / SQRT_2;
 
                 Coordinate {
                     x: max_x + 2.0 * max_size,
@@ -171,9 +155,9 @@ impl Kanoko {
         match self.grid {
             Grid::Triangle => todo!(),
             Grid::Diamond => {
-                let x = 2.0 * index.x as f64 * self.cell_size * 2_f64.sqrt()
-                    + (index.y % 2) as f64 * 2.0 * self.cell_size / 2_f64.sqrt();
-                let y = 2.0 * index.y as f64 * self.cell_size / 2_f64.sqrt();
+                let x = 2.0 * index.x as f64 * self.cell_size * SQRT_2
+                    + (index.y % 2) as f64 * 2.0 * self.cell_size / SQRT_2;
+                let y = 2.0 * index.y as f64 * self.cell_size / SQRT_2;
 
                 Coordinate { x, y }
             }
@@ -184,14 +168,14 @@ impl Kanoko {
     fn generate_group(&self, index: &Index) -> Group {
         let mut group = Group::new();
 
-        for layer in &self.layers {
-            let color = (layer.color_fn)(*index);
+        for spot in &self.spots {
+            let color = (spot.color_fn)(*index);
             let [r, g, b, a] = color.to_rgba8().to_u8_array();
             let fill = format!("rgb({},{},{})", r, g, b);
             let opacity = a as f64 / 255.0;
 
             group = group.add(
-                self.generate_path(layer)
+                self.generate_path(spot)
                     .set("fill", fill)
                     .set("fill-opacity", opacity),
             );
@@ -200,8 +184,8 @@ impl Kanoko {
         group
     }
 
-    fn generate_path(&self, layer: &LayerConfig) -> Path {
-        let corner_coordinates = self.generate_corner_coordinates(layer);
+    fn generate_path(&self, spot: &SpotConfig) -> Path {
+        let corner_coordinates = self.generate_corner_coordinates(spot);
         let side_coordinates = self.generate_side_coordinates(&corner_coordinates);
 
         let mut data = Data::new();
@@ -224,18 +208,16 @@ impl Kanoko {
         Path::new().set("stroke", "none").set("d", data)
     }
 
-    fn generate_corner_coordinates(&self, layer: &LayerConfig) -> Vec<Coordinate> {
+    fn generate_corner_coordinates(&self, spot: &SpotConfig) -> Vec<Coordinate> {
         (1..=self.grid as u8)
             .map(|i| {
                 let angle: f64 = 2_f64 * PI * i as f64 / f64::from(self.grid);
+                let coordinate = Coordinate {
+                    x: spot.size * angle.cos(),
+                    y: spot.size * angle.sin(),
+                };
 
-                Coordinate {
-                    x: layer.size * angle.cos(),
-                    y: layer.size * angle.sin(),
-                }
-            })
-            .map(|coordinate| {
-                if let Some(standard_deviation) = layer.standard_deviation {
+                if let Some(standard_deviation) = spot.standard_deviation {
                     self.add_jitter(coordinate, standard_deviation)
                 } else {
                     coordinate
@@ -266,7 +248,7 @@ impl Kanoko {
     }
 
     fn add_jitter(&self, coordinate: Coordinate, standard_deviation: f64) -> Coordinate {
-        let normal = Normal::new(0 as f64, standard_deviation).unwrap();
+        let normal = Normal::new(0.0, standard_deviation).unwrap();
         let jitter = Coordinate {
             x: normal.sample(&mut rand::rng()),
             y: normal.sample(&mut rand::rng()),
