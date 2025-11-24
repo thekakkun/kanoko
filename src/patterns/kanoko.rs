@@ -1,5 +1,5 @@
 use itertools::{Itertools, iproduct};
-use rand_distr::Distribution;
+use rand_distr::{Distribution, num_traits::Float};
 use std::{collections::VecDeque, f64::consts::PI, ops::Add};
 use svg::{
     Document,
@@ -127,9 +127,9 @@ impl Kanoko {
         match self.grid {
             Grid::Triangle => todo!(),
             Grid::Diamond => {
-                let max_x = (self.grid_size.x - 1) as f64 * self.cell_size / 2_f64.sqrt() * 2.0;
-                let max_y = (self.grid_size.y - 1) as f64 * self.cell_size * 2_f64.sqrt() * 2.0
-                    + (self.grid_size.x.min(2) - 1) as f64 * self.cell_size / 2_f64.sqrt() * 2.0;
+                let max_x = 2.0 * (self.grid_size.x - 1) as f64 * self.cell_size * 2_f64.sqrt()
+                    + (self.grid_size.y.min(2) - 1) as f64 * 2.0 * self.cell_size / 2_f64.sqrt();
+                let max_y = 2.0 * (self.grid_size.y - 1) as f64 * self.cell_size / 2_f64.sqrt();
 
                 Coordinate {
                     x: max_x + 2.0 * self.size,
@@ -144,9 +144,9 @@ impl Kanoko {
         match self.grid {
             Grid::Triangle => todo!(),
             Grid::Diamond => {
-                let x = index.x as f64 * self.cell_size / 2_f64.sqrt() * 2.0;
-                let y = index.y as f64 * self.cell_size * 2_f64.sqrt() * 2.0
-                    + (index.x % 2) as f64 * self.cell_size / 2_f64.sqrt() * 2.0;
+                let x = 2.0 * index.x as f64 * self.cell_size * 2_f64.sqrt()
+                    + (index.y % 2) as f64 * 2.0 * self.cell_size / 2_f64.sqrt();
+                let y = 2.0 * index.y as f64 * self.cell_size / 2_f64.sqrt();
 
                 Coordinate { x, y }
             }
