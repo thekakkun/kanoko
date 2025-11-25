@@ -109,10 +109,9 @@ impl Kanoko {
 
         document = document.add(background_rect);
 
-        let max_size = self.spots.iter().map(|spot| spot.size).fold(0.0, f64::max);
-        let grid_size = self.calculate_grid_dimensions(max_size);
-        let offset_x = (self.canvas_size.x - grid_size.x) / 2.0 + max_size;
-        let offset_y = (self.canvas_size.y - grid_size.y) / 2.0 + max_size;
+        let grid_size = self.calculate_grid_dimensions();
+        let offset_x = (self.canvas_size.x - grid_size.x) / 2.0;
+        let offset_y = (self.canvas_size.y - grid_size.y) / 2.0;
 
         for (x, y) in iproduct!(0..self.grid_size.x, 0..self.grid_size.y) {
             let index = Index { x, y };
@@ -134,7 +133,7 @@ impl Kanoko {
         document
     }
 
-    fn calculate_grid_dimensions(&self, max_size: f64) -> Coordinate {
+    fn calculate_grid_dimensions(&self) -> Coordinate {
         match self.grid {
             Grid::Triangle => todo!(),
             Grid::Diamond => {
@@ -142,10 +141,7 @@ impl Kanoko {
                     + (self.grid_size.y.min(2) - 1) as f64 * 2.0 * self.cell_size / SQRT_2;
                 let max_y = 2.0 * (self.grid_size.y - 1) as f64 * self.cell_size / SQRT_2;
 
-                Coordinate {
-                    x: max_x + 2.0 * max_size,
-                    y: max_y + 2.0 * max_size,
-                }
+                Coordinate { x: max_x, y: max_y }
             }
             Grid::Hexagon => todo!(),
         }
