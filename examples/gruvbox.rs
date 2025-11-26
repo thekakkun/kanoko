@@ -1,3 +1,6 @@
+use std::path::PathBuf;
+
+use clap::Parser;
 use kanoko::{
     Canvas, Coordinate,
     grid::{DiamondGrid, Index},
@@ -6,8 +9,17 @@ use kanoko::{
 };
 use rand::{Rng, seq::IndexedRandom};
 
+#[derive(Parser)]
+struct Cli {
+    output: Option<PathBuf>,
+    width: Option<f64>,
+    height: Option<f64>,
+}
+
 /// An example with lots of randomization using colors sourced from Gruvbox.
 fn main() {
+    let cli = Cli::parse();
+
     let mut rng = rand::rng();
 
     let grid = DiamondGrid {
@@ -21,8 +33,8 @@ fn main() {
     let background_color = hex_to_alpha_color("#282828").unwrap();
     let mut canvas = Canvas::new(
         Coordinate {
-            x: 2560.0,
-            y: 1440.0,
+            x: cli.width.unwrap_or(2560.0),
+            y: cli.width.unwrap_or(1440.0),
         },
         background_color,
         Box::new(grid),
@@ -46,5 +58,10 @@ fn main() {
     )));
 
     let document = canvas.render(|_| rand::rng().random_bool(0.9));
-    svg::save("examples/gruvbox.svg", &document).unwrap();
+
+    svg::save(
+        cli.output.unwrap_or(PathBuf::from("examples/gruvbox.svg")),
+        &document,
+    )
+    .unwrap();
 }
