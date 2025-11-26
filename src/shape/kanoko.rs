@@ -17,12 +17,12 @@ pub struct KanokoShape {
 impl KanokoShape {
     pub fn new(
         size: f64,
-        color_fn: Box<dyn Fn(Index) -> AlphaColor<Srgb>>,
+        color_fn: impl Fn(Index) -> AlphaColor<Srgb> + 'static,
         std_dev: Option<f64>,
     ) -> Self {
         Self {
             size,
-            color_fn,
+            color_fn: Box::new(color_fn),
             std_dev,
         }
     }

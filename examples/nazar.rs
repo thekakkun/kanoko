@@ -20,29 +20,29 @@ fn main() {
             y: 1440.0,
         },
         AlphaColor::WHITE,
-        Box::new(grid),
+        grid,
     );
 
-    canvas.add_shape(Box::new(KanokoShape::new(
+    canvas.add_shape(KanokoShape::new(
         200.0,
-        Box::new(|_| hex_to_alpha_color("#070d97").unwrap()),
+        |_| hex_to_alpha_color("#070d97").unwrap(),
         Some(8.0),
-    )));
-    canvas.add_shape(Box::new(KanokoShape::new(
+    ));
+    canvas.add_shape(KanokoShape::new(
         150.0,
-        Box::new(|_| AlphaColor::WHITE),
+        |_| AlphaColor::WHITE,
         Some(8.0),
-    )));
-    canvas.add_shape(Box::new(KanokoShape::new(
+    ));
+    canvas.add_shape(KanokoShape::new(
         100.0,
-        Box::new(|_| hex_to_alpha_color("#73bff1").unwrap()),
+        |_| hex_to_alpha_color("#73bff1").unwrap(),
         Some(8.0),
-    )));
-    canvas.add_shape(Box::new(KanokoShape::new(
+    ));
+    canvas.add_shape(KanokoShape::new(
         50.0,
-        Box::new(|_| AlphaColor::BLACK),
+        |_| AlphaColor::BLACK,
         Some(8.0),
-    )));
+    ));
 
     let document = canvas.render(|_| rand::rng().random_bool(0.8));
     svg::save("examples/nazar.svg", &document).unwrap();

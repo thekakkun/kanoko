@@ -19,19 +19,19 @@ fn main() {
             y: 1440.0,
         },
         background_color,
-        Box::new(grid),
+        grid,
     );
 
-    canvas.add_shape(Box::new(KanokoShape::new(
+    canvas.add_shape(KanokoShape::new(
         30.0,
-        Box::new(|_| hex_to_alpha_color("#f5f5fa").unwrap()),
+        |_| hex_to_alpha_color("#f5f5fa").unwrap(),
         None,
-    )));
-    canvas.add_shape(Box::new(KanokoShape::new(
+    ));
+    canvas.add_shape(KanokoShape::new(
         15.0,
-        Box::new(move |_| background_color),
+        move |_| background_color,
         None,
-    )));
+    ));
 
     let document = canvas.render(|_| true);
     svg::save("examples/kanoko.svg", &document).unwrap();

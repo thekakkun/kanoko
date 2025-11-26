@@ -22,12 +22,12 @@ impl Canvas {
     pub fn new(
         canvas_size: Coordinate,
         background_color: AlphaColor<Srgb>,
-        grid: Box<dyn Grid>,
+        grid: impl Grid + 'static,
     ) -> Self {
         Self {
             canvas_size,
             background_color,
-            grid,
+            grid: Box::new(grid),
             shapes: Vec::new(),
         }
     }
@@ -57,8 +57,8 @@ impl Canvas {
         document
     }
 
-    pub fn add_shape(&mut self, shape: Box<dyn Shape>) {
-        self.shapes.push(shape);
+    pub fn add_shape(&mut self, shape: impl Shape + 'static) {
+        self.shapes.push(Box::new(shape));
     }
 
     fn render_background(&self) -> Rectangle {
