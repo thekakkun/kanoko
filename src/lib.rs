@@ -1,5 +1,9 @@
-pub mod patterns;
-pub mod utils;
+mod canvas;
+mod coordinate;
+pub mod grid;
+pub mod shape;
+mod utils;
 
-pub use patterns::kanoko::{Coordinate, Index, Kanoko};
+pub use canvas::Canvas;
+pub use coordinate::Coordinate;
 pub use utils::hex_to_alpha_color;
