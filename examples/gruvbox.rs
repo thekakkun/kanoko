@@ -29,7 +29,7 @@ fn main() {
     );
 
     let size = rng.random_range(10.0..grid.cell_size);
-    let std_dev = grid.cell_size * rng.random_range(0.025..0.035);
+    let std_dev = grid.cell_size * rng.random_range(0.01..0.05);
     canvas.add_shape(Box::new(KanokoShape::new(
         size,
         Box::new(|_| {
@@ -38,10 +38,11 @@ fn main() {
         }),
         Some(std_dev),
     )));
+    let inner_ratio = rng.random_range(0.1..0.9);
     canvas.add_shape(Box::new(KanokoShape::new(
-        size * rng.random_range(0.1..0.9),
+        size * inner_ratio,
         Box::new(move |_| background_color),
-        Some(std_dev),
+        Some(std_dev * inner_ratio),
     )));
 
     let document = canvas.render(|_| rand::rng().random_bool(0.9));
