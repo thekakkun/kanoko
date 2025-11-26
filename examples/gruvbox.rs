@@ -10,8 +10,6 @@ use rand::{Rng, seq::IndexedRandom};
 fn main() {
     let mut rng = rand::rng();
 
-    let background_color = hex_to_alpha_color("#282828").unwrap();
-
     let grid = DiamondGrid {
         grid_size: Index {
             x: rng.random_range(5..50),
@@ -20,6 +18,7 @@ fn main() {
         cell_size: rng.random_range(10.0..200.0),
     };
 
+    let background_color = hex_to_alpha_color("#282828").unwrap();
     let mut canvas = Canvas::new(
         Coordinate {
             x: 2560.0,
