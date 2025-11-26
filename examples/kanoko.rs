@@ -7,13 +7,12 @@ use kanoko::{
 
 /// An example with minimal randomization, using traditional Japanese tie-dye colors.
 fn main() {
-    let background_color = hex_to_alpha_color("#393c7d").unwrap();
-
     let grid = DiamondGrid {
         grid_size: Index { x: 19, y: 16 },
         cell_size: 30.0,
     };
 
+    let background_color = hex_to_alpha_color("#393c7d").unwrap();
     let mut canvas = Canvas::new(
         Coordinate {
             x: 2560.0,
