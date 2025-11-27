@@ -6,18 +6,18 @@ use color::{AlphaColor, Srgb};
 use itertools::Itertools;
 use rand_distr::Normal;
 
-use crate::{Coordinate, grid::Index, shape::Shape};
+use crate::{Coordinate, shape::Shape};
 
-pub struct KanokoShape {
+pub struct KanokoShape<I> {
     pub size: f64,
-    pub color_fn: Box<dyn Fn(Index) -> AlphaColor<Srgb>>,
+    pub color_fn: Box<dyn Fn(I) -> AlphaColor<Srgb>>,
     pub std_dev: Option<f64>,
 }
 
-impl KanokoShape {
+impl<I> KanokoShape<I> {
     pub fn new(
         size: f64,
-        color_fn: impl Fn(Index) -> AlphaColor<Srgb> + 'static,
+        color_fn: impl Fn(I) -> AlphaColor<Srgb> + 'static,
         std_dev: Option<f64>,
     ) -> Self {
         Self {
@@ -67,8 +67,10 @@ impl KanokoShape {
     }
 }
 
-impl Shape for KanokoShape {
-    fn generate_path(&self, index: &Index) -> Path {
+impl<I: Copy> Shape for KanokoShape<I> {
+    type Index = I;
+
+    fn generate_path(&self, index: &Self::Index) -> Path {
         let corner_coordinates = self.generate_corner_coordinates();
         let side_coordinates = self.generate_side_coordinates(&corner_coordinates);
 

@@ -2,9 +2,8 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use kanoko::{
-    Canvas, Coordinate,
-    grid::{DiamondGrid, Index},
-    hex_to_alpha_color,
+    Canvas, Coordinate, hex_to_alpha_color,
+    point_set::lattice::{Index, Lattice},
     shape::KanokoShape,
 };
 use rand::{Rng, seq::IndexedRandom};
@@ -19,10 +18,9 @@ struct Cli {
 /// An example with lots of randomization using colors sourced from Gruvbox.
 fn main() {
     let cli = Cli::parse();
-
     let mut rng = rand::rng();
 
-    let grid = DiamondGrid {
+    let grid = Lattice {
         grid_size: Index {
             x: rng.random_range(5..50),
             y: rng.random_range(1..50),

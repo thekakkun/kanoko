@@ -4,25 +4,21 @@ use svg::{
     node::element::{Group, Rectangle},
 };
 
-use crate::{
-    Coordinate,
-    grid::{Grid, Index},
-    shape::Shape,
-};
+use crate::{Coordinate, point_set::PointSet, shape::Shape};
 
-pub struct Canvas {
+pub struct Canvas<I> {
     pub canvas_size: Coordinate,
     pub background_color: AlphaColor<Srgb>,
 
-    pub grid: Box<dyn Grid>,
-    pub shapes: Vec<Box<dyn Shape>>,
+    pub grid: Box<dyn PointSet<Index = I>>,
+    pub shapes: Vec<Box<dyn Shape<Index = I>>>,
 }
 
-impl Canvas {
+impl<I> Canvas<I> {
     pub fn new(
         canvas_size: Coordinate,
         background_color: AlphaColor<Srgb>,
-        grid: impl Grid + 'static,
+        grid: impl PointSet<Index = I> + 'static,
     ) -> Self {
         Self {
             canvas_size,
@@ -32,7 +28,7 @@ impl Canvas {
         }
     }
 
-    pub fn render(&self, index_filter: impl Fn(&Index) -> bool) -> Document {
+    pub fn render(&self, index_filter: impl Fn(&I) -> bool) -> Document {
         let mut document = Document::new()
             .set("viewBox", (0, 0, self.canvas_size.x, self.canvas_size.y))
             .set("width", self.canvas_size.x)
@@ -57,7 +53,7 @@ impl Canvas {
         document
     }
 
-    pub fn add_shape(&mut self, shape: impl Shape + 'static) {
+    pub fn add_shape(&mut self, shape: impl Shape<Index = I> + 'static) {
         self.shapes.push(Box::new(shape));
     }
 
@@ -72,7 +68,7 @@ impl Canvas {
             .set("fill-opacity", opacity)
     }
 
-    fn render_shape_group(&self, index: &Index) -> Group {
+    fn render_shape_group(&self, index: &I) -> Group {
         let mut group = Group::new();
 
         for shape in &self.shapes {

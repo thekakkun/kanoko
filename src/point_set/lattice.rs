@@ -2,25 +2,30 @@ use std::f64::consts::SQRT_2;
 
 use itertools::iproduct;
 
-use crate::{
-    Coordinate,
-    grid::{Grid, Index},
-};
+use crate::{Coordinate, point_set::PointSet};
 
 #[derive(Debug, Clone, Copy)]
-pub struct DiamondGrid {
+pub struct Index {
+    pub x: u16,
+    pub y: u16,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Lattice {
     pub grid_size: Index,
     pub cell_size: f64,
 }
 
-impl Grid for DiamondGrid {
-    fn index_iter(&self) -> Box<dyn Iterator<Item = Index>> {
+impl PointSet for Lattice {
+    type Index = Index;
+
+    fn index_iter(&self) -> Box<dyn Iterator<Item = Self::Index>> {
         let iter = iproduct!(0..self.grid_size.x, 0..self.grid_size.y).map(|(x, y)| Index { x, y });
 
         Box::new(iter)
     }
 
-    fn index_to_coordinate(&self, index: &Index) -> Coordinate {
+    fn index_to_coordinate(&self, index: &Self::Index) -> Coordinate {
         let x = 2.0 * index.x as f64 * self.cell_size * SQRT_2
             + (index.y % 2) as f64 * 2.0 * self.cell_size / SQRT_2;
         let y = 2.0 * index.y as f64 * self.cell_size / SQRT_2;

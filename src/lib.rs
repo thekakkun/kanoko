@@ -1,6 +1,6 @@
 mod canvas;
 mod coordinate;
-pub mod grid;
+pub mod point_set;
 pub mod shape;
 mod utils;
 

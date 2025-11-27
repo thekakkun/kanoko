@@ -1,13 +1,12 @@
 use kanoko::{
-    Canvas, Coordinate,
-    grid::{DiamondGrid, Index},
-    hex_to_alpha_color,
+    Canvas, Coordinate, hex_to_alpha_color,
+    point_set::lattice::{Index, Lattice},
     shape::KanokoShape,
 };
 
 /// An example with minimal randomization, using traditional Japanese tie-dye colors.
 fn main() {
-    let grid = DiamondGrid {
+    let grid = Lattice {
         grid_size: Index { x: 19, y: 16 },
         cell_size: 30.0,
     };
@@ -27,11 +26,7 @@ fn main() {
         |_| hex_to_alpha_color("#f5f5fa").unwrap(),
         None,
     ));
-    canvas.add_shape(KanokoShape::new(
-        15.0,
-        move |_| background_color,
-        None,
-    ));
+    canvas.add_shape(KanokoShape::new(15.0, move |_| background_color, None));
 
     let document = canvas.render(|_| true);
     svg::save("examples/kanoko.svg", &document).unwrap();
