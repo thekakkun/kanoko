@@ -2,6 +2,11 @@
 name = "kanoko"
 version = "0.1.0"
 edition = "2024"
+description = "Generate a random pattern inspired by the traditional Japanese kanoko pattern"
+documentation = "https://docs.rs/kanoko/"
+readme = "README.md"
+repository = "https://github.com/thekakkun/kanoko"
+license-file = "LICENSE"
 
 [dependencies]
 color = "0.3.2"
