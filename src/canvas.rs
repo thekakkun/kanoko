@@ -4,7 +4,7 @@ use svg::{
     node::element::{Group, Rectangle},
 };
 
-use crate::{Coordinate, point_set::PointSet, shape::Shape};
+use crate::{geometry::Coordinate, point_set::PointSet, shape::Shape};
 
 pub struct Canvas<I> {
     pub canvas_size: Coordinate,

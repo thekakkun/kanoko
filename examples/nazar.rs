@@ -1,8 +1,10 @@
 use color::AlphaColor;
 use kanoko::{
-    Canvas, Coordinate, hex_to_alpha_color,
+    Canvas,
+    geometry::Coordinate,
+    hex_to_alpha_color,
     point_set::lattice::{Index, Lattice},
-    shape::KanokoShape,
+    shape::Polygon,
 };
 use rand::Rng;
 
@@ -22,18 +24,20 @@ fn main() {
         grid,
     );
 
-    canvas.add_shape(KanokoShape::new(
+    canvas.add_shape(Polygon::new(
+        7,
         200.0,
         |_| hex_to_alpha_color("#070d97").unwrap(),
         Some(8.0),
     ));
-    canvas.add_shape(KanokoShape::new(150.0, |_| AlphaColor::WHITE, Some(8.0)));
-    canvas.add_shape(KanokoShape::new(
+    canvas.add_shape(Polygon::new(7, 150.0, |_| AlphaColor::WHITE, Some(8.0)));
+    canvas.add_shape(Polygon::new(
+        7,
         100.0,
         |_| hex_to_alpha_color("#73bff1").unwrap(),
         Some(8.0),
     ));
-    canvas.add_shape(KanokoShape::new(50.0, |_| AlphaColor::BLACK, Some(8.0)));
+    canvas.add_shape(Polygon::new(7, 50.0, |_| AlphaColor::BLACK, Some(8.0)));
 
     let document = canvas.render(|_| rand::rng().random_bool(0.8));
     svg::save("examples/nazar.svg", &document).unwrap();

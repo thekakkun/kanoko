@@ -6,9 +6,10 @@ use color::{AlphaColor, Srgb};
 use itertools::Itertools;
 use rand_distr::Normal;
 
-use crate::{Coordinate, shape::Shape};
+use crate::{geometry::Coordinate, shape::Shape};
 
 pub struct KanokoShape<I> {
+    pub sides: u8,
     pub size: f64,
     pub color_fn: Box<dyn Fn(I) -> AlphaColor<Srgb>>,
     pub std_dev: Option<f64>,
@@ -16,11 +17,13 @@ pub struct KanokoShape<I> {
 
 impl<I> KanokoShape<I> {
     pub fn new(
+        sides: u8,
         size: f64,
         color_fn: impl Fn(I) -> AlphaColor<Srgb> + 'static,
         std_dev: Option<f64>,
     ) -> Self {
         Self {
+            sides,
             size,
             color_fn: Box::new(color_fn),
             std_dev,
@@ -28,12 +31,12 @@ impl<I> KanokoShape<I> {
     }
 
     fn generate_corner_coordinates(&self) -> Vec<Coordinate> {
-        (0..4)
+        (0..self.sides)
             .map(|i| {
-                let angle: f64 = 2_f64 * PI * i as f64 / 4_f64;
+                let angle: f64 = 2_f64 * PI * i as f64 / self.sides as f64;
                 let coordinate = Coordinate {
-                    x: self.size * angle.cos(),
-                    y: self.size * angle.sin(),
+                    x: self.size * angle.sin(),
+                    y: -self.size * angle.cos(),
                 };
 
                 if let Some(std_dev) = self.std_dev {

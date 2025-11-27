@@ -2,7 +2,7 @@ use std::f64::consts::SQRT_2;
 
 use itertools::iproduct;
 
-use crate::{Coordinate, point_set::PointSet};
+use crate::{geometry::Coordinate, point_set::PointSet};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Index {
@@ -33,7 +33,7 @@ impl PointSet for Lattice {
         Coordinate { x, y }
     }
 
-    fn bounding_box(&self) -> crate::Coordinate {
+    fn bounding_box(&self) -> Coordinate {
         let max_x = 2.0 * (self.grid_size.x - 1) as f64 * self.cell_size * SQRT_2
             + (self.grid_size.y.min(2) - 1) as f64 * 2.0 * self.cell_size / SQRT_2;
         let max_y = 2.0 * (self.grid_size.y - 1) as f64 * self.cell_size / SQRT_2;

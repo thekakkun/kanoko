@@ -2,9 +2,11 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use kanoko::{
-    Canvas, Coordinate, hex_to_alpha_color,
+    Canvas,
+    geometry::Coordinate,
+    hex_to_alpha_color,
     point_set::lattice::{Index, Lattice},
-    shape::KanokoShape,
+    shape::Polygon,
 };
 use rand::{Rng, seq::IndexedRandom};
 
@@ -40,7 +42,8 @@ fn main() {
 
     let size = rng.random_range(10.0..grid.cell_size);
     let std_dev = grid.cell_size * rng.random_range(0.01..0.05);
-    canvas.add_shape(KanokoShape::new(
+    canvas.add_shape(Polygon::new(
+        4,
         size,
         |_| {
             let colors = ["#98971a", "#458588", "#a89984", "#d79921", "#ebdbb2"];
@@ -49,7 +52,8 @@ fn main() {
         Some(std_dev),
     ));
     let inner_ratio = rng.random_range(0.1..0.9);
-    canvas.add_shape(KanokoShape::new(
+    canvas.add_shape(Polygon::new(
+        4,
         size * inner_ratio,
         move |_| background_color,
         Some(std_dev * inner_ratio),

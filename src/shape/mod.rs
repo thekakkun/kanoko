@@ -1,6 +1,6 @@
-mod kanoko;
+mod polygon;
 
-pub use kanoko::KanokoShape;
+pub use polygon::KanokoShape as Polygon;
 
 use svg::node::element::Path;
 

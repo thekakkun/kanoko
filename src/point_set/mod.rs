@@ -1,6 +1,6 @@
 pub mod lattice;
 
-use crate::Coordinate;
+use crate::geometry::Coordinate;
 
 pub trait PointSet {
     type Index;
