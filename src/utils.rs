@@ -1,5 +1,12 @@
 use color::{AlphaColor, Srgb};
 
+#[macro_export]
+macro_rules! static_fn {
+    ($value:expr) => {
+        |_| $value
+    };
+}
+
 pub fn hex_to_alpha_color(hex: &str) -> Result<AlphaColor<Srgb>, String> {
     let hex = hex.trim_start_matches('#');
 

@@ -6,37 +6,61 @@ use color::{AlphaColor, Srgb};
 use itertools::Itertools;
 use rand_distr::Normal;
 
-use crate::{geometry::Coordinate, shape::Shape};
+use crate::{
+    geometry::{Angle, Coordinate},
+    shape::Shape,
+};
 
 pub struct KanokoShape<I> {
-    pub sides: u8,
-    pub size: f64,
-    pub color_fn: Box<dyn Fn(I) -> AlphaColor<Srgb>>,
+    pub sides_fn: Box<dyn Fn(&I) -> u8>,
+    pub size_fn: Box<dyn Fn(&I) -> f64>,
+    pub rotation_fn: Box<dyn Fn(&I) -> Angle>,
+    pub color_fn: Box<dyn Fn(&I) -> AlphaColor<Srgb>>,
     pub std_dev: Option<f64>,
 }
 
 impl<I> KanokoShape<I> {
     pub fn new(
-        sides: u8,
-        size: f64,
-        color_fn: impl Fn(I) -> AlphaColor<Srgb> + 'static,
+        sides_fn: impl Fn(&I) -> u8 + 'static,
+        size_fn: impl Fn(&I) -> f64 + 'static,
+        rotation_fn: impl Fn(&I) -> Angle + 'static,
+        color_fn: impl Fn(&I) -> AlphaColor<Srgb> + 'static,
         std_dev: Option<f64>,
     ) -> Self {
         Self {
-            sides,
-            size,
+            sides_fn: Box::new(sides_fn),
+            size_fn: Box::new(size_fn),
+            rotation_fn: Box::new(rotation_fn),
             color_fn: Box::new(color_fn),
             std_dev,
         }
     }
 
-    fn generate_corner_coordinates(&self) -> Vec<Coordinate> {
-        (0..self.sides)
+    pub fn new_static(
+        sides: u8,
+        size: f64,
+        rotation: Angle,
+        color: AlphaColor<Srgb>,
+        std_dev: Option<f64>,
+    ) -> Self {
+        Self::new(
+            move |_| sides,
+            move |_| size,
+            move |_| rotation,
+            move |_| color,
+            std_dev,
+        )
+    }
+
+    fn generate_corner_coordinates(&self, index: &I) -> Vec<Coordinate> {
+        let sides = (self.sides_fn)(index);
+        (0..sides)
             .map(|i| {
-                let angle: f64 = 2_f64 * PI * i as f64 / self.sides as f64;
+                let angle: f64 =
+                    2_f64 * PI * i as f64 / sides as f64 + (self.rotation_fn)(index).to_radian();
                 let coordinate = Coordinate {
-                    x: self.size * angle.sin() / 2.0,
-                    y: -self.size * angle.cos() / 2.0,
+                    x: (self.size_fn)(index) * angle.sin() / 2.0,
+                    y: -(self.size_fn)(index) * angle.cos() / 2.0,
                 };
 
                 if let Some(std_dev) = self.std_dev {
@@ -74,7 +98,7 @@ impl<I: Copy> Shape for KanokoShape<I> {
     type Index = I;
 
     fn generate_path(&self, index: &Self::Index) -> Path {
-        let corner_coordinates = self.generate_corner_coordinates();
+        let corner_coordinates = self.generate_corner_coordinates(index);
         let side_coordinates = self.generate_side_coordinates(&corner_coordinates);
 
         let mut data = Data::new();
@@ -92,7 +116,7 @@ impl<I: Copy> Shape for KanokoShape<I> {
         }
         data = data.close();
 
-        let color = (self.color_fn)(*index);
+        let color = (self.color_fn)(index);
         let [r, g, b, a] = color.to_rgba8().to_u8_array();
         let fill = format!("rgb({},{},{})", r, g, b);
         let opacity = a as f64 / 255.0;
