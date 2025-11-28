@@ -3,14 +3,14 @@
 ## [Gruvbox](gruvbox.rs)
 
 Lots of randomimzation, cli options, with colors sourced from Gruvbox.
-![gruvbox](https://github.com/user-attachments/assets/5b7720de-44db-41b8-8a43-6bc0bf5b8ed0)
+![gruvbox](https://github.com/user-attachments/assets/b1672413-e1a9-4392-934e-373dd5ff71ad)
 
 ## [Kanoko](kanoko.rs)
 
 Minimal randomization, colors based on traditional Japanese tye-dye.
-![kanoko](https://github.com/user-attachments/assets/343b7345-cf80-4173-bb07-93e04d228656)
+![kanoko](https://github.com/user-attachments/assets/17f50dd4-4c8e-4951-a61e-ca6a09cb82e6)
 
 ## [Nazar](nazar.rs)
 
 An example with multiple layers, colors based off a Nazar amulet.
-![nazar](https://github.com/user-attachments/assets/2add9885-f0e2-45b4-9ca3-3b807e551df3)
+![nazar](https://github.com/user-attachments/assets/f7647582-cd14-45d0-ab1e-4bf268807e2a)
