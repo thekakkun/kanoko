@@ -2,7 +2,7 @@
 
 ## [Gruvbox](gruvbox.rs)
 
-Lots of randomimzation, cli options, with colors sourced from Gruvbox.
+Lots of randomimzation, with colors sourced from Gruvbox.
 ![gruvbox](https://github.com/user-attachments/assets/b1672413-e1a9-4392-934e-373dd5ff71ad)
 
 ## [Kanoko](kanoko.rs)

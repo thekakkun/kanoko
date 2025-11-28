@@ -1,6 +1,3 @@
-use std::path::PathBuf;
-
-use clap::Parser;
 use kanoko::{
     Canvas,
     geometry::{Angle, Coordinate},
@@ -12,13 +9,6 @@ use kanoko::{
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng, seq::IndexedRandom};
 
-#[derive(Parser)]
-struct Cli {
-    output: Option<PathBuf>,
-    width: Option<f64>,
-    height: Option<f64>,
-}
-
 fn random_sides(index: &Index) -> u8 {
     let seed = (index.x as u64)
         .wrapping_mul(31)
@@ -29,7 +19,6 @@ fn random_sides(index: &Index) -> u8 {
 
 /// An example with lots of randomization using colors sourced from Gruvbox.
 fn main() {
-    let cli = Cli::parse();
     let mut rng = rand::rng();
 
     let grid = Lattice::new(
@@ -43,11 +32,7 @@ fn main() {
     );
 
     let background_color = hex_to_alpha_color("#282828").unwrap();
-    let mut canvas = Canvas::new(
-        Coordinate::new(cli.width.unwrap_or(2560.0), cli.width.unwrap_or(1440.0)),
-        background_color,
-        grid,
-    );
+    let mut canvas = Canvas::new(Coordinate::new(2560.0, 1440.0), background_color, grid);
 
     let size = rng
         .random_range(100.0..grid.a)
@@ -67,9 +52,5 @@ fn main() {
 
     let document = canvas.render(|_| rand::rng().random_bool(0.9));
 
-    svg::save(
-        cli.output.unwrap_or(PathBuf::from("examples/gruvbox.svg")),
-        &document,
-    )
-    .unwrap();
+    svg::save("examples/gruvbox.svg", &document).unwrap();
 }
