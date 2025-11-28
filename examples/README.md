@@ -7,7 +7,7 @@ Lots of randomimzation, cli options, with colors sourced from Gruvbox.
 
 ## [Kanoko](kanoko.rs)
 
-Minimal randomization, colors based on traditional Japanese tye-dye.
+Minimal randomization, based on the traditional Japanese tie-dye pattern.
 ![kanoko](https://github.com/user-attachments/assets/17f50dd4-4c8e-4951-a61e-ca6a09cb82e6)
 
 ## [Nazar](nazar.rs)
