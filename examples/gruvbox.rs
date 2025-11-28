@@ -32,13 +32,14 @@ fn main() {
     let cli = Cli::parse();
     let mut rng = rand::rng();
 
-    let side = rng.random_range(10.0..200.0);
-    let grid = Lattice::new_hexagonal(
+    let grid = Lattice::new(
         Index {
             x: rng.random_range(5..50),
             y: rng.random_range(1..50),
         },
-        side,
+        rng.random_range(100.0..400.0),
+        rng.random_range(100.0..400.0),
+        Angle::Degree(rng.random_range(10.0..90.0)),
     );
 
     let background_color = hex_to_alpha_color("#282828").unwrap();
@@ -48,7 +49,9 @@ fn main() {
         grid,
     );
 
-    let size = rng.random_range(10.0..grid.a);
+    let size = rng
+        .random_range(100.0..grid.a)
+        .min(rng.random_range(100.0..grid.b) * grid.theta.to_radian().sin());
     let std_dev = size * rng.random_range(0.02..0.08);
 
     canvas.add_shape(Polygon::new(
@@ -60,14 +63,6 @@ fn main() {
             hex_to_alpha_color(colors.choose(&mut rand::rng()).unwrap()).unwrap()
         },
         Some(std_dev),
-    ));
-    let inner_ratio = rng.random_range(0.0..0.9);
-    canvas.add_shape(Polygon::new(
-        random_sides,
-        move |_| size * inner_ratio,
-        static_fn!(Angle::Radian(0.0)),
-        move |_| background_color,
-        Some(std_dev * inner_ratio),
     ));
 
     let document = canvas.render(|_| rand::rng().random_bool(0.9));

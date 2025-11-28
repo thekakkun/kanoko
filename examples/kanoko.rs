@@ -10,12 +10,8 @@ use kanoko::{
 fn main() {
     let grid = Lattice::new_centered_square(Index { x: 19, y: 16 }, 90.0);
 
-    let background_color = hex_to_alpha_color("#393c7d").unwrap();
-    let mut canvas = Canvas::new(
-        Coordinate::new(2560.0, 1440.0),
-        background_color,
-        grid,
-    );
+    let background_color = hex_to_alpha_color("#002E4E").unwrap();
+    let mut canvas = Canvas::new(Coordinate::new(2560.0, 1440.0), background_color, grid);
 
     canvas.add_shape(Polygon::new_static(
         4,
