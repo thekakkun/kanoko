@@ -6,16 +6,7 @@ use kanoko::{
     shape::Polygon,
     static_fn,
 };
-use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng, seq::IndexedRandom};
-
-fn random_sides(index: &Index) -> u8 {
-    let seed = (index.x as u64)
-        .wrapping_mul(31)
-        .wrapping_add(index.y as u64);
-    let mut rng = StdRng::seed_from_u64(seed);
-    rng.random_range(3..8)
-}
+use rand::{Rng, seq::IndexedRandom};
 
 /// An example with lots of randomization using colors sourced from Gruvbox.
 fn main() {
@@ -40,7 +31,7 @@ fn main() {
     let std_dev = size * rng.random_range(0.02..0.08);
 
     canvas.add_shape(Polygon::new(
-        random_sides,
+        |_| rand::rng().random_range(3..8),
         move |_| size,
         static_fn!(Angle::Radian(0.0)),
         |_| {
