@@ -35,8 +35,8 @@ impl<I> KanokoShape<I> {
             .map(|i| {
                 let angle: f64 = 2_f64 * PI * i as f64 / self.sides as f64;
                 let coordinate = Coordinate {
-                    x: self.size * angle.sin(),
-                    y: -self.size * angle.cos(),
+                    x: self.size * angle.sin() / 2.0,
+                    y: -self.size * angle.cos() / 2.0,
                 };
 
                 if let Some(std_dev) = self.std_dev {

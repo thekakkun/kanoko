@@ -10,10 +10,7 @@ use rand::Rng;
 
 /// An example of using multiple layers to create patterns based on a nazar amulet.
 fn main() {
-    let grid = Lattice {
-        grid_size: Index { x: 5, y: 5 },
-        cell_size: 200.0,
-    };
+    let grid = Lattice::new_rectangle(Index { x: 15, y: 8 }, 350.0, 175.0);
 
     let mut canvas = Canvas::new(
         Coordinate {
@@ -28,17 +25,17 @@ fn main() {
         7,
         200.0,
         |_| hex_to_alpha_color("#070d97").unwrap(),
-        Some(8.0),
+        Some(4.0),
     ));
-    canvas.add_shape(Polygon::new(7, 150.0, |_| AlphaColor::WHITE, Some(8.0)));
+    canvas.add_shape(Polygon::new(7, 150.0, |_| AlphaColor::WHITE, Some(4.0)));
     canvas.add_shape(Polygon::new(
         7,
         100.0,
         |_| hex_to_alpha_color("#73bff1").unwrap(),
-        Some(8.0),
+        Some(4.0),
     ));
-    canvas.add_shape(Polygon::new(7, 50.0, |_| AlphaColor::BLACK, Some(8.0)));
+    canvas.add_shape(Polygon::new(7, 50.0, |_| AlphaColor::BLACK, Some(4.0)));
 
-    let document = canvas.render(|_| rand::rng().random_bool(0.8));
+    let document = canvas.render(|_| rand::rng().random_bool(0.5));
     svg::save("examples/nazar.svg", &document).unwrap();
 }

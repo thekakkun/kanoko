@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{f64::consts::PI, path::PathBuf};
 
 use clap::Parser;
 use kanoko::{
@@ -22,13 +22,15 @@ fn main() {
     let cli = Cli::parse();
     let mut rng = rand::rng();
 
-    let grid = Lattice {
-        grid_size: Index {
+    let side = rng.random_range(10.0..200.0);
+
+    let grid = Lattice::new_hexagonal(
+        Index {
             x: rng.random_range(5..50),
             y: rng.random_range(1..50),
         },
-        cell_size: rng.random_range(10.0..200.0),
-    };
+        side,
+    );
 
     let background_color = hex_to_alpha_color("#282828").unwrap();
     let mut canvas = Canvas::new(
@@ -40,10 +42,10 @@ fn main() {
         grid,
     );
 
-    let size = rng.random_range(10.0..grid.cell_size);
-    let std_dev = grid.cell_size * rng.random_range(0.01..0.05);
+    let size = rng.random_range(10.0..grid.a);
+    let std_dev = grid.a * rng.random_range(0.005..0.02);
     canvas.add_shape(Polygon::new(
-        4,
+        6,
         size,
         |_| {
             let colors = ["#98971a", "#458588", "#a89984", "#d79921", "#ebdbb2"];
@@ -53,7 +55,7 @@ fn main() {
     ));
     let inner_ratio = rng.random_range(0.1..0.9);
     canvas.add_shape(Polygon::new(
-        4,
+        6,
         size * inner_ratio,
         move |_| background_color,
         Some(std_dev * inner_ratio),
