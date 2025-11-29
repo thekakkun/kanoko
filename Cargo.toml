@@ -9,7 +9,7 @@ repository = "https://github.com/thekakkun/kanoko"
 license-file = "LICENSE"
 
 [dependencies]
-color = "0.3.2"
+hex_color = "3.0.0"
 itertools = "0.14.0"
 rand = "0.9.2"
 rand_distr = "0.5.1"

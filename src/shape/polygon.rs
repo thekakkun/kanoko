@@ -2,20 +2,21 @@ use rand_distr::Distribution;
 use std::{collections::VecDeque, f64::consts::PI};
 use svg::node::element::{Path, path::Data};
 
-use color::{AlphaColor, Srgb};
 use itertools::Itertools;
 use rand_distr::Normal;
 
 use crate::{
+    Color,
     geometry::{Angle, Coordinate},
-    shape::Shape,
+    shape::{IndexFn, Shape},
+    static_fn,
 };
 
 pub struct KanokoShape<I> {
-    pub sides_fn: Box<dyn Fn(&I) -> u8>,
-    pub size_fn: Box<dyn Fn(&I) -> f64>,
-    pub rotation_fn: Box<dyn Fn(&I) -> Angle>,
-    pub color_fn: Box<dyn Fn(&I) -> AlphaColor<Srgb>>,
+    pub sides_fn: IndexFn<I, u8>,
+    pub size_fn: IndexFn<I, f64>,
+    pub rotation_fn: IndexFn<I, Angle>,
+    pub color_fn: IndexFn<I, Color>,
     pub std_dev: Option<f64>,
 }
 
@@ -24,7 +25,7 @@ impl<I> KanokoShape<I> {
         sides_fn: impl Fn(&I) -> u8 + 'static,
         size_fn: impl Fn(&I) -> f64 + 'static,
         rotation_fn: impl Fn(&I) -> Angle + 'static,
-        color_fn: impl Fn(&I) -> AlphaColor<Srgb> + 'static,
+        color_fn: impl Fn(&I) -> Color + 'static,
         std_dev: Option<f64>,
     ) -> Self {
         Self {
@@ -40,14 +41,14 @@ impl<I> KanokoShape<I> {
         sides: u8,
         size: f64,
         rotation: Angle,
-        color: AlphaColor<Srgb>,
+        color: Color,
         std_dev: Option<f64>,
     ) -> Self {
         Self::new(
-            move |_| sides,
-            move |_| size,
-            move |_| rotation,
-            move |_| color,
+            static_fn!(sides),
+            static_fn!(size),
+            static_fn!(rotation),
+            static_fn!(color),
             std_dev,
         )
     }
@@ -117,14 +118,9 @@ impl<I: Copy> Shape for KanokoShape<I> {
         data = data.close();
 
         let color = (self.color_fn)(index);
-        let [r, g, b, a] = color.to_rgba8().to_u8_array();
-        let fill = format!("rgb({},{},{})", r, g, b);
-        let opacity = a as f64 / 255.0;
-
         Path::new()
             .set("stroke", "none")
             .set("d", data)
-            .set("fill", fill)
-            .set("fill-opacity", opacity)
+            .set("fill", color.to_rgb_fn())
     }
 }

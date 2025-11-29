@@ -1,7 +1,6 @@
 use kanoko::{
-    Canvas,
+    Canvas, Color,
     geometry::{Angle, Coordinate},
-    hex_to_alpha_color,
     point_set::lattice::{Index, Lattice},
     shape::Polygon,
     static_fn,
@@ -22,7 +21,7 @@ fn main() {
         Angle::Degree(rng.random_range(10.0..90.0)),
     );
 
-    let background_color = hex_to_alpha_color("#282828").unwrap();
+    let background_color = Color::from_hex("#282828").unwrap();
     let mut canvas = Canvas::new(Coordinate::new(2560.0, 1440.0), background_color, grid);
 
     let size = rng
@@ -36,12 +35,11 @@ fn main() {
         static_fn!(Angle::default()),
         |_| {
             let colors = ["#98971a", "#458588", "#a89984", "#d79921", "#ebdbb2"];
-            hex_to_alpha_color(colors.choose(&mut rand::rng()).unwrap()).unwrap()
+            Color::from_hex(colors.choose(&mut rand::rng()).unwrap()).unwrap()
         },
         Some(std_dev),
     ));
 
     let document = canvas.render(|_| rand::rng().random_bool(0.9));
-
     svg::save("examples/gruvbox.svg", &document).unwrap();
 }

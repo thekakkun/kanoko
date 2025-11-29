@@ -1,14 +1,13 @@
-use color::{AlphaColor, Srgb};
 use svg::{
     Document,
     node::element::{Group, Rectangle},
 };
 
-use crate::{geometry::Coordinate, point_set::PointSet, shape::Shape};
+use crate::{Color, geometry::Coordinate, point_set::PointSet, shape::Shape};
 
 pub struct Canvas<I> {
     pub canvas_size: Coordinate,
-    pub background_color: AlphaColor<Srgb>,
+    pub background_color: Color,
 
     pub grid: Box<dyn PointSet<Index = I>>,
     pub shapes: Vec<Box<dyn Shape<Index = I>>>,
@@ -17,7 +16,7 @@ pub struct Canvas<I> {
 impl<I> Canvas<I> {
     pub fn new(
         canvas_size: Coordinate,
-        background_color: AlphaColor<Srgb>,
+        background_color: Color,
         grid: impl PointSet<Index = I> + 'static,
     ) -> Self {
         Self {
@@ -58,14 +57,10 @@ impl<I> Canvas<I> {
     }
 
     fn render_background(&self) -> Rectangle {
-        let [r, g, b, a] = self.background_color.to_rgba8().to_u8_array();
-        let opacity = a as f64 / 255.0;
-
         Rectangle::new()
             .set("width", self.canvas_size.x)
             .set("height", self.canvas_size.y)
-            .set("fill", format!("rgb({},{},{})", r, g, b))
-            .set("fill-opacity", opacity)
+            .set("fill", self.background_color.to_rgb_fn())
     }
 
     fn render_shape_group(&self, index: &I) -> Group {
