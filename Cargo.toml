@@ -1,6 +1,6 @@
 [package]
 name = "kanoko"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 description = "Generate a random pattern inspired by the traditional Japanese kanoko pattern"
 documentation = "https://docs.rs/kanoko/"
