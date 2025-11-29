@@ -13,15 +13,18 @@ impl Default for Angle {
 }
 
 impl Angle {
+    #[inline]
     pub fn to_degree(self) -> f64 {
         match self {
             Angle::Degree(theta) => theta,
-            Angle::Radian(theta) => 2.0 * PI * theta / 360.0,
+            Angle::Radian(theta) => theta * 180.0 / PI,
         }
     }
+
+    #[inline]
     pub fn to_radian(self) -> f64 {
         match self {
-            Angle::Degree(theta) => theta * 360.0 / 2.0 / PI,
+            Angle::Degree(theta) => theta * PI / 180.0,
             Angle::Radian(theta) => theta,
         }
     }

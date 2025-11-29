@@ -4,15 +4,18 @@ use hex_color::{HexColor, ParseHexColorError};
 pub struct Color(HexColor);
 
 impl Color {
+    #[inline]
     pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
         Self(HexColor { r, g, b, a })
     }
 
+    #[inline]
     pub fn from_hex(hex: &str) -> Result<Self, ParseHexColorError> {
         Ok(Self(HexColor::parse(hex)?))
     }
 
-    pub fn to_rgb_fn(&self) -> String {
+    #[inline]
+    pub(crate) fn to_svg_color(self) -> String {
         format!(
             "rgb({} {} {} / {}%)",
             self.0.r,

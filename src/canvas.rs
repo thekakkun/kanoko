@@ -60,7 +60,7 @@ impl<I> Canvas<I> {
         Rectangle::new()
             .set("width", self.canvas_size.x)
             .set("height", self.canvas_size.y)
-            .set("fill", self.background_color.to_rgb_fn())
+            .set("fill", self.background_color.to_svg_color())
     }
 
     fn render_shape_group(&self, index: &I) -> Group {

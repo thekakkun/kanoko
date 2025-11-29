@@ -9,10 +9,12 @@ pub struct Coordinate {
 }
 
 impl Coordinate {
+    #[inline]
     pub fn new(x: f64, y: f64) -> Self {
         Self { x, y }
     }
 
+    #[inline]
     pub(crate) fn add_jitter(&self, std_dev: f64) -> Self {
         let normal = Normal::new(0.0, std_dev).unwrap();
         let jitter = Coordinate {
@@ -23,6 +25,7 @@ impl Coordinate {
         *self + jitter
     }
 
+    #[inline]
     pub(crate) fn lerp(&self, other: &Self, t: f64) -> Self {
         Self {
             x: self.x + t * (other.x - self.x),

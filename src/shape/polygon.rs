@@ -55,22 +55,24 @@ impl<I> KanokoShape<I> {
 
     fn generate_corner_coordinates(&self, index: &I) -> Vec<Coordinate> {
         let sides = (self.sides_fn)(index);
-        (0..sides)
-            .map(|i| {
-                let angle: f64 =
-                    2_f64 * PI * i as f64 / sides as f64 + (self.rotation_fn)(index).to_radian();
-                let coordinate = Coordinate {
-                    x: (self.size_fn)(index) * angle.sin() / 2.0,
-                    y: -(self.size_fn)(index) * angle.cos() / 2.0,
-                };
+        let size = (self.size_fn)(index);
+        let rotation = (self.rotation_fn)(index).to_radian();
 
-                if let Some(std_dev) = self.std_dev {
-                    coordinate.add_jitter(std_dev)
-                } else {
-                    coordinate
-                }
-            })
-            .collect()
+        let mut corners = Vec::with_capacity(sides as usize);
+        for i in 0..sides {
+            let angle = 2.0 * PI * i as f64 / sides as f64 + rotation;
+            let coordinate = Coordinate {
+                x: size * angle.sin() / 2.0,
+                y: -size * angle.cos() / 2.0,
+            };
+
+            corners.push(if let Some(std_dev) = self.std_dev {
+                coordinate.add_jitter(std_dev)
+            } else {
+                coordinate
+            });
+        }
+        corners
     }
 
     fn generate_side_coordinates(&self, corner_coordinates: &[Coordinate]) -> Vec<Coordinate> {
@@ -121,6 +123,6 @@ impl<I: Copy> Shape for KanokoShape<I> {
         Path::new()
             .set("stroke", "none")
             .set("d", data)
-            .set("fill", color.to_rgb_fn())
+            .set("fill", color.to_svg_color())
     }
 }
