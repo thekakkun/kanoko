@@ -16,14 +16,14 @@ fn main() {
     canvas.add_shape(Polygon::new_static(
         4,
         70.0,
-        Angle::Radian(0.0),
+        Angle::default(),
         hex_to_alpha_color("#f5f5fa").unwrap(),
         None,
     ));
     canvas.add_shape(Polygon::new_static(
         4,
         35.0,
-        Angle::Radian(0.0),
+        Angle::default(),
         background_color,
         None,
     ));

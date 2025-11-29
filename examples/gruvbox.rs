@@ -33,7 +33,7 @@ fn main() {
     canvas.add_shape(Polygon::new(
         |_| rand::rng().random_range(3..8),
         move |_| size,
-        static_fn!(Angle::Radian(0.0)),
+        static_fn!(Angle::default()),
         |_| {
             let colors = ["#98971a", "#458588", "#a89984", "#d79921", "#ebdbb2"];
             hex_to_alpha_color(colors.choose(&mut rand::rng()).unwrap()).unwrap()

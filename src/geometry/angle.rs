@@ -6,6 +6,12 @@ pub enum Angle {
     Radian(f64),
 }
 
+impl Default for Angle {
+    fn default() -> Self {
+        Self::Radian(0.0)
+    }
+}
+
 impl Angle {
     pub fn to_degree(self) -> f64 {
         match self {
