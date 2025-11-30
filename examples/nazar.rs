@@ -6,7 +6,7 @@ use kanoko::{
 };
 use rand::Rng;
 
-/// An example of using multiple layers to create patterns based on a nazar amulet.
+/// An example with multiple layers, colors based off a Nazar amulet.
 fn main() {
     let grid = Lattice::new_hexagonal(Index { x: 15, y: 9 }, 450.0);
 

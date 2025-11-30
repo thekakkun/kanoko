@@ -7,7 +7,7 @@ use kanoko::{
 };
 use rand::{Rng, seq::IndexedRandom};
 
-/// An example with lots of randomization using colors sourced from Gruvbox.
+/// An example with lots of randomimzation, using colors sourced from Gruvbox.
 fn main() {
     let mut rng = rand::rng();
 

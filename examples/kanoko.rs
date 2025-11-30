@@ -6,7 +6,7 @@ use kanoko::{
     static_fn,
 };
 
-/// An example with minimal randomization, using traditional Japanese tie-dye colors.
+/// An example with minimal randomization, based on the traditional Japanese tie-dye pattern.
 fn main() {
     let grid = Lattice::new_centered_square(Index { x: 19, y: 16 }, 90.0);
 
