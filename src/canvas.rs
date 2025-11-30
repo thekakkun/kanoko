@@ -5,11 +5,18 @@ use svg::{
 
 use crate::{Color, geometry::Coordinate, point_set::PointSet, shape::Shape};
 
+/// Represents the image to be rendered
 pub struct Canvas<I> {
+    /// The size of the canvas, in pixels
     pub canvas_size: Coordinate,
+
+    /// The image background [`Color`]
     pub background_color: Color,
 
-    pub grid: Box<dyn PointSet<Index = I>>,
+    /// The [`PointSet`] used for the image
+    pub points: Box<dyn PointSet<Index = I>>,
+
+    /// The list of [`Shape`] to be rendered, ordered from lowest layer to highest
     pub shapes: Vec<Box<dyn Shape<Index = I>>>,
 }
 
@@ -22,11 +29,15 @@ impl<I> Canvas<I> {
         Self {
             canvas_size,
             background_color,
-            grid: Box::new(grid),
+            points: Box::new(grid),
             shapes: Vec::new(),
         }
     }
 
+    /// Render the SVG document
+    ///
+    /// `index_filter` can be used to only render the shapes at a given `Index` if it returns
+    /// `true`.
     pub fn render(&self, index_filter: impl Fn(&I) -> bool) -> Document {
         let mut document = Document::new()
             .set("viewBox", (0, 0, self.canvas_size.x, self.canvas_size.y))
@@ -36,11 +47,11 @@ impl<I> Canvas<I> {
         let background = self.render_background();
         document = document.add(background);
 
-        let grid_bb = self.grid.bounding_box();
+        let grid_bb = self.points.bounding_box();
         let grid_offset = (self.canvas_size - grid_bb) / 2.0;
 
-        for index in self.grid.index_iter().filter(index_filter) {
-            let coordinate = self.grid.index_to_coordinate(&index);
+        for index in self.points.index_iter().filter(index_filter) {
+            let coordinate = self.points.index_to_coordinate(&index);
             let group_offset = grid_offset + coordinate;
             let group = self.render_shape_group(&index).set(
                 "transform",
@@ -52,6 +63,7 @@ impl<I> Canvas<I> {
         document
     }
 
+    /// Add a shape on top of the `shapes` vec
     pub fn add_shape(&mut self, shape: impl Shape<Index = I> + 'static) {
         self.shapes.push(Box::new(shape));
     }

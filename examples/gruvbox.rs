@@ -20,7 +20,6 @@ fn main() {
         rng.random_range(100.0..400.0),
         Angle::Degree(rng.random_range(10.0..90.0)),
     );
-
     let background_color = Color::from_hex("#282828").unwrap();
     let mut canvas = Canvas::new(Coordinate::new(2560.0, 1440.0), background_color, grid);
 

@@ -1,3 +1,4 @@
+//! A polygonal shape with rounded corners
 use rand_distr::Distribution;
 use std::{collections::VecDeque, f64::consts::PI};
 use svg::node::element::{Path, path::Data};
@@ -12,15 +13,34 @@ use crate::{
     static_fn,
 };
 
-pub struct KanokoShape<I> {
+/// A polygonal shape with rounded corners
+///
+/// Most of its fields are defined as functions of the `Index`. This allows the polygon to be
+/// rendered differently depending on where it is in the image.
+pub struct Polygon<I> {
+    /// The number of sides in the polygon
     pub sides_fn: IndexFn<I, u8>,
+
+    /// The size of the polygon
+    ///
+    /// This is the diameter of the circle that the vertices of the polygon would lie on.
     pub size_fn: IndexFn<I, f64>,
+
+    /// The rotation of the polygon
+    ///
+    /// With no rotation, the shape is rendered "pointy side up".
     pub rotation_fn: IndexFn<I, Angle>,
+
+    /// The color of the polygon
     pub color_fn: IndexFn<I, Color>,
+
+    /// The standard deviation used when randomizing the location of the vertices using a normal
+    /// distribution
     pub std_dev: Option<f64>,
 }
 
-impl<I> KanokoShape<I> {
+impl<I> Polygon<I> {
+    /// Define a new polygon
     pub fn new(
         sides_fn: impl Fn(&I) -> u8 + 'static,
         size_fn: impl Fn(&I) -> f64 + 'static,
@@ -37,6 +57,7 @@ impl<I> KanokoShape<I> {
         }
     }
 
+    /// Define a new polygon with static values (no dependency on `Index`)
     pub fn new_static(
         sides: u8,
         size: f64,
@@ -97,7 +118,7 @@ impl<I> KanokoShape<I> {
     }
 }
 
-impl<I: Copy> Shape for KanokoShape<I> {
+impl<I: Copy> Shape for Polygon<I> {
     type Index = I;
 
     fn generate_path(&self, index: &Self::Index) -> Path {

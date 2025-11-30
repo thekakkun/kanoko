@@ -1,4 +1,4 @@
-mod angle;
+pub mod angle;
 mod coordinate;
 
 pub use angle::Angle;

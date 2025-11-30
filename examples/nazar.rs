@@ -9,7 +9,6 @@ use rand::Rng;
 /// An example with multiple layers, colors based off a Nazar amulet.
 fn main() {
     let grid = Lattice::new_hexagonal(Index { x: 15, y: 9 }, 450.0);
-
     let mut canvas = Canvas::new(
         Coordinate::new(2560.0, 1440.0),
         Color::from_hex("#fff").unwrap(),

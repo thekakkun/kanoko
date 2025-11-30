@@ -2,7 +2,7 @@
 name = "kanoko"
 version = "0.3.0"
 edition = "2024"
-description = "Generate a random pattern inspired by the traditional Japanese kanoko pattern"
+description = "A library for generative art (initially) based off of a traditional Japanese tie-dye pattern"
 documentation = "https://docs.rs/kanoko/"
 readme = "README.md"
 repository = "https://github.com/thekakkun/kanoko"
@@ -14,4 +14,3 @@ itertools = "0.14.0"
 rand = "0.9.2"
 rand_distr = "0.5.1"
 svg = "0.18.0"
-
