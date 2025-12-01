@@ -10,6 +10,12 @@ Minimal randomization, based on the traditional Japanese tie-dye pattern.
 Lots of randomimzation, using colors sourced from Gruvbox.
 ![gruvbox](https://github.com/user-attachments/assets/b1672413-e1a9-4392-934e-373dd5ff71ad)
 
+## [Sunflower](sunflower.rs)
+
+An example using `Vogel` as the point set
+![sunflower](https://github.com/user-attachments/assets/e5dc3f88-b884-4fa5-b026-d6c2a4c4bbed)
+
+
 ## [Nazar](nazar.rs)
 
 Multiple layers, colors based off a Nazar amulet.
