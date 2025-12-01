@@ -13,7 +13,7 @@ fn main() {
 
     canvas.add_shape(Polygon::new(
         static_fn!(4),
-        static_fn!(110.0),
+        static_fn!(100.0),
         move |n| Angle::Radian(*n as f64 * grid.angle.to_radian()),
         static_fn!(Color::from_hex("#3d2f06").unwrap()),
         None,
