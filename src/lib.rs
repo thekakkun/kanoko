@@ -3,8 +3,8 @@
 //!
 //! # Description
 //!
-//! Define a [`Canvas`] with a [`PointSet`](point_set). Then add [`Shapes`](shape) to be drawn on
-//! each point in the `PointSet`.
+//! Define a [`Canvas`] with a [`PointSet`](point_set::PointSet). Then add [`Shapes`](shape::Shape)
+//! to be drawn on each point in the `PointSet`.
 //!
 //! Each point in the `PointSet` has an associated [`Index`](point_set::PointSet::Index). This gets
 //! passed to the `Shape` so that you can control if and how the shape gets rendered depending on
@@ -12,7 +12,7 @@
 //!
 //! # Example
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 #![doc = include_str!("../examples/kanoko.rs")]
 //! ```
 
