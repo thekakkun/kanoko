@@ -25,7 +25,7 @@ impl Vogel {
         }
     }
 
-    pub fn new_sunflower(seeds: usize, scaling_factor: f64) -> Self {
+    pub fn new_golden(seeds: usize, scaling_factor: f64) -> Self {
         Self::new(
             seeds,
             scaling_factor,
