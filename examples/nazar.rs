@@ -11,6 +11,7 @@ fn main() {
         400.0,
         Angle::default(),
         Color::from_hex("#070d97").unwrap(),
+        Some(50.0),
         Some(4.0),
     ));
     canvas.add_shape(Polygon::new_static(
@@ -18,6 +19,7 @@ fn main() {
         300.0,
         Angle::default(),
         Color::from_hex("#fff").unwrap(),
+        Some(50.0),
         Some(4.0),
     ));
     canvas.add_shape(Polygon::new_static(
@@ -25,6 +27,7 @@ fn main() {
         200.0,
         Angle::default(),
         Color::from_hex("#73bff1").unwrap(),
+        Some(50.0),
         Some(4.0),
     ));
     canvas.add_shape(Polygon::new_static(
@@ -32,6 +35,7 @@ fn main() {
         100.0,
         Angle::default(),
         Color::from_hex("#000").unwrap(),
+        Some(50.0),
         Some(4.0),
     ));
 

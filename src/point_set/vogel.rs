@@ -16,7 +16,6 @@ pub struct Vogel {
 impl Vogel {
     pub fn new(seeds: usize, scaling_factor: f64, angle: Angle) -> Self {
         let radius = 2.0 * scaling_factor * ((seeds - 1) as f64).sqrt();
-        println!("{}", radius);
 
         Self {
             seeds,

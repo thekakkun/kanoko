@@ -19,7 +19,7 @@ fn main() {
     let size = rng
         .random_range(100.0..grid.a)
         .min(rng.random_range(100.0..grid.b) * grid.theta.to_radian().sin());
-    let std_dev = size * rng.random_range(0.02..0.08);
+    let std_dev = size * rng.random_range(0.1..0.5) / 6.0;
 
     canvas.add_shape(Polygon::new(
         |_| rand::rng().random_range(3..8),
@@ -29,6 +29,7 @@ fn main() {
             let colors = ["#98971a", "#458588", "#a89984", "#d79921", "#ebdbb2"];
             Color::from_hex(colors.choose(&mut rand::rng()).unwrap()).unwrap()
         },
+        Some(rng.random_range(10.0..100.0)),
         Some(std_dev),
     ));
 

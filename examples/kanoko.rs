@@ -14,12 +14,14 @@ fn main() {
         Angle::default(),
         Color::from_hex("#f5f5fa").unwrap(),
         None,
+        None,
     ));
     canvas.add_shape(Polygon::new_static(
         4,
         35.0,
         Angle::default(),
         background_color,
+        None,
         None,
     ));
 

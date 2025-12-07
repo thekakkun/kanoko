@@ -1,4 +1,7 @@
-use std::{f64::consts::PI, ops::Mul};
+use std::{
+    f64::consts::PI,
+    ops::{Add, AddAssign, Mul},
+};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Angle {
@@ -27,6 +30,23 @@ impl Angle {
             Angle::Degree(theta) => theta * PI / 180.0,
             Angle::Radian(theta) => theta,
         }
+    }
+}
+
+impl Add for Angle {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let self_rad = self.to_radian();
+        let rhs_rad = rhs.to_radian();
+
+        Angle::Radian((self_rad + rhs_rad) % (2.0 * PI))
+    }
+}
+
+impl AddAssign for Angle {
+    fn add_assign(&mut self, rhs: Self) {
+        *self = *self + rhs;
     }
 }
 

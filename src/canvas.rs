@@ -49,7 +49,6 @@ impl<I> Canvas<I> {
 
         let (bb_min, bb_max) = self.points.bounding_box();
         let span = bb_max - bb_min;
-        println!("{:?}", span);
 
         let grid_offset = (Coordinate::Cartesian {
             x: self.canvas_size.0,

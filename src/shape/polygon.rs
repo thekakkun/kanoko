@@ -1,5 +1,6 @@
 //! A polygonal shape with rounded corners
-use rand_distr::Distribution;
+use core::f64;
+use rand_distr::{Distribution, multi::Dirichlet};
 use std::{collections::VecDeque, f64::consts::PI};
 use svg::node::element::{Path, path::Data};
 
@@ -34,6 +35,7 @@ pub struct Polygon<I> {
     /// The color of the polygon
     pub color_fn: IndexFn<I, Color>,
 
+    pub alpha: Option<f64>,
     /// The standard deviation used when randomizing the location of the vertices using a normal
     /// distribution
     pub std_dev: Option<f64>,
@@ -46,6 +48,7 @@ impl<I> Polygon<I> {
         size_fn: impl Fn(&I) -> f64 + 'static,
         rotation_fn: impl Fn(&I) -> Angle + 'static,
         color_fn: impl Fn(&I) -> Color + 'static,
+        alpha: Option<f64>,
         std_dev: Option<f64>,
     ) -> Self {
         Self {
@@ -53,6 +56,7 @@ impl<I> Polygon<I> {
             size_fn: Box::new(size_fn),
             rotation_fn: Box::new(rotation_fn),
             color_fn: Box::new(color_fn),
+            alpha,
             std_dev,
         }
     }
@@ -63,6 +67,7 @@ impl<I> Polygon<I> {
         size: f64,
         rotation: Angle,
         color: Color,
+        alpha: Option<f64>,
         std_dev: Option<f64>,
     ) -> Self {
         Self::new(
@@ -70,6 +75,7 @@ impl<I> Polygon<I> {
             static_fn!(size),
             static_fn!(rotation),
             static_fn!(color),
+            alpha,
             std_dev,
         )
     }
@@ -77,28 +83,36 @@ impl<I> Polygon<I> {
     fn generate_corner_coordinates(&self, index: &I) -> Vec<Coordinate> {
         let sides = (self.sides_fn)(index);
         let size = (self.size_fn)(index);
-        let rotation = (self.rotation_fn)(index).to_radian();
+        let rotation = Angle::Radian(-PI / 2.0) + (self.rotation_fn)(index);
 
-        let mut corners = Vec::with_capacity(sides as usize);
-        for i in 0..sides {
-            let coordinate = Coordinate::Polar {
-                r: size / 2.0,
-                phi: Angle::Radian(2.0 * PI * i as f64 / sides as f64 + rotation),
-            };
-            // let angle = 2.0 * PI * i as f64 / sides as f64 + rotation;
-            // let coordinate = Coordinate {
-            //     x: size * angle.sin() / 2.0,
-            //     y: -size * angle.cos() / 2.0,
-            // };
+        let divisions = if let Some(alpha) = self.alpha {
+            let params = vec![alpha; sides as usize];
+            let dirichlet = Dirichlet::new(&params).unwrap();
+            dirichlet.sample(&mut rand::rng())
+        } else {
+            vec![1.0 / sides as f64; sides as usize]
+        };
 
-            // corners.push(if let Some(std_dev) = self.std_dev {
-            //     coordinate.add_jitter(std_dev)
-            // } else {
-            //     coordinate
-            // });
-            corners.push(coordinate);
-        }
-        corners
+        divisions
+            .iter()
+            .scan(Angle::Radian(0.0), |state, &x| {
+                *state += Angle::Radian(x * 2.0 * PI);
+                Some(*state)
+            })
+            .map(|theta| {
+                let r = if let Some(std_dev) = self.std_dev {
+                    let normal = Normal::new(size / 2.0, std_dev).unwrap();
+                    normal.sample(&mut rand::rng())
+                } else {
+                    size / 2.0
+                };
+
+                Coordinate::Polar {
+                    r,
+                    phi: theta + rotation,
+                }
+            })
+            .collect()
     }
 
     fn generate_side_coordinates(&self, corner_coordinates: &[Coordinate]) -> Vec<Coordinate> {
