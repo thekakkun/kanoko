@@ -11,14 +11,12 @@ fn main() {
         move |n| Angle::Radian(*n as f64 * grid.angle.to_radian()),
         static_fn!(Color::from_hex("#3d2f06").unwrap()),
         None,
-        None,
     ));
     canvas.add_shape(Polygon::new(
         static_fn!(4),
         static_fn!(20.0),
         move |n| Angle::Radian(*n as f64 * grid.angle.to_radian()),
         static_fn!(Color::from_hex("#dedbd5").unwrap()),
-        None,
         None,
     ));
 

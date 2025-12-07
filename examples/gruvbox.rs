@@ -28,7 +28,6 @@ fn main() {
             let colors = ["#98971a", "#458588", "#a89984", "#d79921", "#ebdbb2"];
             Color::from_hex(colors.choose(&mut rand::rng()).unwrap()).unwrap()
         },
-        Some(rng.random_range(10.0..100.0)),
         Some(rng.random_range(0.1..0.5) / 6.0),
     ));
 

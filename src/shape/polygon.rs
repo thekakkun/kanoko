@@ -1,5 +1,4 @@
 //! A polygonal shape with rounded corners
-use core::f64;
 use rand_distr::{Distribution, multi::Dirichlet};
 use std::{collections::VecDeque, f64::consts::PI};
 use svg::node::element::{Path, path::Data};
@@ -35,8 +34,6 @@ pub struct Polygon<I> {
     /// The color of the polygon
     pub color_fn: IndexFn<I, Color>,
 
-    pub alpha: Option<f64>,
-
     /// The standard deviation used when randomizing the location of the vertices using a normal
     /// distribution
     pub cv: Option<f64>,
@@ -49,7 +46,6 @@ impl<I> Polygon<I> {
         size_fn: impl Fn(&I) -> f64 + 'static,
         rotation_fn: impl Fn(&I) -> Angle + 'static,
         color_fn: impl Fn(&I) -> Color + 'static,
-        alpha: Option<f64>,
         cv: Option<f64>,
     ) -> Self {
         Self {
@@ -57,7 +53,6 @@ impl<I> Polygon<I> {
             size_fn: Box::new(size_fn),
             rotation_fn: Box::new(rotation_fn),
             color_fn: Box::new(color_fn),
-            alpha,
             cv,
         }
     }
@@ -68,7 +63,6 @@ impl<I> Polygon<I> {
         size: f64,
         rotation: Angle,
         color: Color,
-        alpha: Option<f64>,
         cv: Option<f64>,
     ) -> Self {
         Self::new(
@@ -76,7 +70,6 @@ impl<I> Polygon<I> {
             static_fn!(size),
             static_fn!(rotation),
             static_fn!(color),
-            alpha,
             cv,
         )
     }
@@ -86,7 +79,8 @@ impl<I> Polygon<I> {
         let size = (self.size_fn)(index) / 2.0;
         let rotation = Angle::Radian(-PI / 2.0) + (self.rotation_fn)(index);
 
-        let divisions = if let Some(alpha) = self.alpha {
+        let divisions = if let Some(cv) = self.cv {
+            let alpha = (sides as f64 - 1_f64 - cv.powi(2)) / (sides as f64 * cv.powi(2));
             let params = vec![alpha; sides as usize];
             let dirichlet = Dirichlet::new(&params).unwrap();
             dirichlet.sample(&mut rand::rng())
