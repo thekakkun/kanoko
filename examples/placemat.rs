@@ -3,7 +3,7 @@ use kanoko::{
 };
 use rand::{Rng, seq::IndexedRandom};
 
-/// An example with lots of randomimzation, using colors sourced from Gruvbox.
+/// An example with lots of randomimzation
 fn main() {
     let mut rng = rand::rng();
 
@@ -13,7 +13,7 @@ fn main() {
         rng.random_range(100.0..400.0),
         Angle::Degree(rng.random_range(0.0..90.0)),
     );
-    let background_color = Color::from_hex("#282828").unwrap();
+    let background_color = Color::from_hex("#e0d8d1").unwrap();
     let mut canvas = Canvas::new((2560.0, 1440.0), background_color, grid);
 
     let size = rng
@@ -25,12 +25,14 @@ fn main() {
         move |_| size,
         static_fn!(Angle::default()),
         |_| {
-            let colors = ["#98971a", "#458588", "#a89984", "#d79921", "#ebdbb2"];
+            let colors = [
+                "#6f6e6a", "#b3b4af", "#b09e90", "#bea24e", "#d9bdb9", "#9a9ba0",
+            ];
             Color::from_hex(colors.choose(&mut rand::rng()).unwrap()).unwrap()
         },
         Some(rng.random_range(0.1..0.5) / 6.0),
     ));
 
     let document = canvas.render(|_| rand::rng().random_bool(0.9));
-    svg::save("examples/gruvbox.svg", &document).unwrap();
+    svg::save("examples/placemat.svg", &document).unwrap();
 }
