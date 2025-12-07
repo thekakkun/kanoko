@@ -36,9 +36,10 @@ pub struct Polygon<I> {
     pub color_fn: IndexFn<I, Color>,
 
     pub alpha: Option<f64>,
+
     /// The standard deviation used when randomizing the location of the vertices using a normal
     /// distribution
-    pub std_dev: Option<f64>,
+    pub cv: Option<f64>,
 }
 
 impl<I> Polygon<I> {
@@ -49,7 +50,7 @@ impl<I> Polygon<I> {
         rotation_fn: impl Fn(&I) -> Angle + 'static,
         color_fn: impl Fn(&I) -> Color + 'static,
         alpha: Option<f64>,
-        std_dev: Option<f64>,
+        cv: Option<f64>,
     ) -> Self {
         Self {
             sides_fn: Box::new(sides_fn),
@@ -57,7 +58,7 @@ impl<I> Polygon<I> {
             rotation_fn: Box::new(rotation_fn),
             color_fn: Box::new(color_fn),
             alpha,
-            std_dev,
+            cv,
         }
     }
 
@@ -68,7 +69,7 @@ impl<I> Polygon<I> {
         rotation: Angle,
         color: Color,
         alpha: Option<f64>,
-        std_dev: Option<f64>,
+        cv: Option<f64>,
     ) -> Self {
         Self::new(
             static_fn!(sides),
@@ -76,13 +77,13 @@ impl<I> Polygon<I> {
             static_fn!(rotation),
             static_fn!(color),
             alpha,
-            std_dev,
+            cv,
         )
     }
 
     fn generate_corner_coordinates(&self, index: &I) -> Vec<Coordinate> {
         let sides = (self.sides_fn)(index);
-        let size = (self.size_fn)(index);
+        let size = (self.size_fn)(index) / 2.0;
         let rotation = Angle::Radian(-PI / 2.0) + (self.rotation_fn)(index);
 
         let divisions = if let Some(alpha) = self.alpha {
@@ -100,11 +101,11 @@ impl<I> Polygon<I> {
                 Some(*state)
             })
             .map(|theta| {
-                let r = if let Some(std_dev) = self.std_dev {
-                    let normal = Normal::new(size / 2.0, std_dev).unwrap();
+                let r = if let Some(cv) = self.cv {
+                    let normal = Normal::new(size, cv * size).unwrap();
                     normal.sample(&mut rand::rng())
                 } else {
-                    size / 2.0
+                    size
                 };
 
                 Coordinate::Polar {
