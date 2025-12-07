@@ -81,17 +81,22 @@ impl<I> Polygon<I> {
 
         let mut corners = Vec::with_capacity(sides as usize);
         for i in 0..sides {
-            let angle = 2.0 * PI * i as f64 / sides as f64 + rotation;
-            let coordinate = Coordinate {
-                x: size * angle.sin() / 2.0,
-                y: -size * angle.cos() / 2.0,
+            let coordinate = Coordinate::Polar {
+                r: size / 2.0,
+                phi: Angle::Radian(2.0 * PI * i as f64 / sides as f64 + rotation),
             };
+            // let angle = 2.0 * PI * i as f64 / sides as f64 + rotation;
+            // let coordinate = Coordinate {
+            //     x: size * angle.sin() / 2.0,
+            //     y: -size * angle.cos() / 2.0,
+            // };
 
-            corners.push(if let Some(std_dev) = self.std_dev {
-                coordinate.add_jitter(std_dev)
-            } else {
-                coordinate
-            });
+            // corners.push(if let Some(std_dev) = self.std_dev {
+            //     coordinate.add_jitter(std_dev)
+            // } else {
+            //     coordinate
+            // });
+            corners.push(coordinate);
         }
         corners
     }
@@ -128,7 +133,8 @@ impl<I: Copy> Shape for Polygon<I> {
         let mut data = Data::new();
 
         if let Some(first) = side_coordinates.first() {
-            data = data.move_to((first.x, first.y));
+            let (x, y) = first.to_cartesian();
+            data = data.move_to((x, y));
         }
         for (end, corner) in side_coordinates
             .iter()
@@ -136,7 +142,9 @@ impl<I: Copy> Shape for Polygon<I> {
             .chain(side_coordinates.first())
             .zip(corner_coordinates.iter())
         {
-            data = data.cubic_curve_to((corner.x, corner.y, corner.x, corner.y, end.x, end.y));
+            let (end_x, end_y) = end.to_cartesian();
+            let (corner_x, corner_y) = corner.to_cartesian();
+            data = data.cubic_curve_to((corner_x, corner_y, corner_x, corner_y, end_x, end_y));
         }
         data = data.close();
 
@@ -145,5 +153,6 @@ impl<I: Copy> Shape for Polygon<I> {
             .set("stroke", "none")
             .set("d", data)
             .set("fill", color.to_svg_color())
+            .set("fill-opacity", color.to_opacity_percent())
     }
 }

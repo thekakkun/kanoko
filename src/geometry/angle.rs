@@ -1,4 +1,4 @@
-use std::f64::consts::PI;
+use std::{f64::consts::PI, ops::Mul};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Angle {
@@ -26,6 +26,17 @@ impl Angle {
         match self {
             Angle::Degree(theta) => theta * PI / 180.0,
             Angle::Radian(theta) => theta,
+        }
+    }
+}
+
+impl Mul<f64> for Angle {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        match self {
+            Angle::Degree(theta) => Angle::Degree((theta * rhs) % 360.0),
+            Angle::Radian(theta) => Angle::Radian((theta * rhs) % (2.0 * PI)),
         }
     }
 }

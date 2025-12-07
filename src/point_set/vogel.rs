@@ -16,6 +16,7 @@ pub struct Vogel {
 impl Vogel {
     pub fn new(seeds: usize, scaling_factor: f64, angle: Angle) -> Self {
         let radius = 2.0 * scaling_factor * ((seeds - 1) as f64).sqrt();
+        println!("{}", radius);
 
         Self {
             seeds,
@@ -43,17 +44,20 @@ impl PointSet for Vogel {
 
     fn index_to_coordinate(&self, index: &Self::Index) -> Coordinate {
         let r = self.scaling_factor * (*index as f64).sqrt();
-        let phi = *index as f64 * self.angle.to_radian();
-        Coordinate {
-            x: r * phi.cos() + self.radius,
-            y: r * phi.sin() + self.radius,
-        }
+        let phi = self.angle * *index as f64;
+        Coordinate::Polar { r, phi }
     }
 
-    fn bounding_box(&self) -> Coordinate {
-        Coordinate {
-            x: self.radius * 2.0,
-            y: self.radius * 2.0,
-        }
+    fn bounding_box(&self) -> (Coordinate, Coordinate) {
+        (
+            Coordinate::Cartesian {
+                x: -self.radius,
+                y: -self.radius,
+            },
+            Coordinate::Cartesian {
+                x: self.radius,
+                y: self.radius,
+            },
+        )
     }
 }

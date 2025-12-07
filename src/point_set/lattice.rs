@@ -21,7 +21,7 @@ pub struct Index {
 #[derive(Debug, Clone, Copy)]
 pub struct Lattice {
     /// Number of points in the lattice in the X and Y direction
-    pub grid_size: Index,
+    pub grid_size: (u16, u16),
 
     /// Magnitude of the `a` vector
     pub a: f64,
@@ -38,7 +38,7 @@ pub struct Lattice {
 
 impl Lattice {
     /// Create a new lattice
-    pub fn new(grid_size: Index, a: f64, b: f64, theta: Angle) -> Self {
+    pub fn new(grid_size: (u16, u16), a: f64, b: f64, theta: Angle) -> Self {
         let theta_rad = theta.to_radian();
         Self {
             grid_size,
@@ -51,27 +51,27 @@ impl Lattice {
     }
 
     /// Create a square lattice
-    pub fn new_square(grid_size: Index, a: f64) -> Self {
+    pub fn new_square(grid_size: (u16, u16), a: f64) -> Self {
         Self::new(grid_size, a, a, Angle::Radian(PI / 2.0))
     }
 
     /// Create a rectangular lattice
-    pub fn new_rectangle(grid_size: Index, a: f64, b: f64) -> Self {
+    pub fn new_rectangle(grid_size: (u16, u16), a: f64, b: f64) -> Self {
         Self::new(grid_size, a, b, Angle::Radian(PI / 2.0))
     }
 
     /// Create a centered rectangle lattice, aka a rhombic lattice
-    pub fn new_centered_rectangle(grid_size: Index, a: f64, b: f64) -> Self {
+    pub fn new_centered_rectangle(grid_size: (u16, u16), a: f64, b: f64) -> Self {
         Self::new(grid_size, a, b, Angle::Radian((a / b).atan()))
     }
 
     /// Create a centered square lattice, aka a diagonal square lattice
-    pub fn new_centered_square(grid_size: Index, a: f64) -> Self {
+    pub fn new_centered_square(grid_size: (u16, u16), a: f64) -> Self {
         Self::new(grid_size, a, a / SQRT_2, Angle::Radian(PI / 4.0))
     }
 
     /// Create a hexagonal lattice, aka an equilateral triangular lattice
-    pub fn new_hexagonal(grid_size: Index, a: f64) -> Self {
+    pub fn new_hexagonal(grid_size: (u16, u16), a: f64) -> Self {
         Self::new(grid_size, a, a, Angle::Radian(PI / 3.0))
     }
 }
@@ -80,21 +80,24 @@ impl PointSet for Lattice {
     type Index = Index;
 
     fn index_iter(&self) -> Box<dyn Iterator<Item = Self::Index>> {
-        Box::new(iproduct!(0..self.grid_size.x, 0..self.grid_size.y).map(|(x, y)| Index { x, y }))
+        Box::new(iproduct!(0..self.grid_size.0, 0..self.grid_size.1).map(|(x, y)| Index { x, y }))
     }
 
     fn index_to_coordinate(&self, index: &Self::Index) -> Coordinate {
         let x = index.x as f64 * self.a + (index.y % 2) as f64 * self.b * self.theta_cos;
         let y = index.y as f64 * self.b * self.theta_sin;
 
-        Coordinate { x, y }
+        Coordinate::Cartesian { x, y }
     }
 
-    fn bounding_box(&self) -> Coordinate {
-        let max_x = (self.grid_size.x - 1) as f64 * self.a
-            + ((self.grid_size.y - 1) % 2) as f64 * self.b * self.theta_cos;
-        let max_y = (self.grid_size.y - 1) as f64 * self.b * self.theta_sin;
+    fn bounding_box(&self) -> (Coordinate, Coordinate) {
+        let max_x = (self.grid_size.0 - 1) as f64 * self.a
+            + ((self.grid_size.1 - 1) % 2) as f64 * self.b * self.theta_cos;
+        let max_y = (self.grid_size.1 - 1) as f64 * self.b * self.theta_sin;
 
-        Coordinate { x: max_x, y: max_y }
+        (
+            Coordinate::Cartesian { x: 0.0, y: 0.0 },
+            Coordinate::Cartesian { x: max_x, y: max_y },
+        )
     }
 }

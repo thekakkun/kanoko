@@ -1,9 +1,5 @@
 use kanoko::{
-    Canvas, Color,
-    geometry::{Angle, Coordinate},
-    point_set::lattice::{Index, Lattice},
-    shape::Polygon,
-    static_fn,
+    Canvas, Color, geometry::Angle, point_set::lattice::Lattice, shape::Polygon, static_fn,
 };
 use rand::{Rng, seq::IndexedRandom};
 
@@ -12,16 +8,13 @@ fn main() {
     let mut rng = rand::rng();
 
     let grid = Lattice::new(
-        Index {
-            x: rng.random_range(5..50),
-            y: rng.random_range(1..50),
-        },
+        (rng.random_range(5..50), rng.random_range(1..50)),
         rng.random_range(100.0..400.0),
         rng.random_range(100.0..400.0),
         Angle::Degree(rng.random_range(10.0..90.0)),
     );
     let background_color = Color::from_hex("#282828").unwrap();
-    let mut canvas = Canvas::new(Coordinate::new(2560.0, 1440.0), background_color, grid);
+    let mut canvas = Canvas::new((2560.0, 1440.0), background_color, grid);
 
     let size = rng
         .random_range(100.0..grid.a)

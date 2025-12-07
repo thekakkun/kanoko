@@ -19,12 +19,11 @@ impl Color {
 
     #[inline]
     pub(crate) fn to_svg_color(self) -> String {
-        format!(
-            "rgb({} {} {} / {}%)",
-            self.0.r,
-            self.0.g,
-            self.0.b,
-            self.0.a as f64 / 255.0 * 100.0
-        )
+        format!("rgb({},{},{})", self.0.r, self.0.g, self.0.b,)
+    }
+
+    #[inline]
+    pub(crate) fn to_opacity_percent(self) -> f64 {
+        self.0.a as f64 / 255.0 * 100.0
     }
 }

@@ -1,35 +1,36 @@
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, Div, Sub};
 
-use rand_distr::{Distribution, Normal};
+use crate::geometry::Angle;
 
 #[derive(Debug, Clone, Copy)]
-pub struct Coordinate {
-    pub x: f64,
-    pub y: f64,
+pub enum Coordinate {
+    Cartesian { x: f64, y: f64 },
+    Polar { r: f64, phi: Angle },
 }
 
 impl Coordinate {
-    #[inline]
-    pub fn new(x: f64, y: f64) -> Self {
-        Self { x, y }
+    pub fn to_cartesian(self) -> (f64, f64) {
+        match self {
+            Coordinate::Cartesian { x, y } => (x, y),
+            Coordinate::Polar { r, phi } => (r * phi.to_radian().cos(), r * phi.to_radian().sin()),
+        }
     }
 
-    #[inline]
-    pub(crate) fn add_jitter(&self, std_dev: f64) -> Self {
-        let normal = Normal::new(0.0, std_dev).unwrap();
-        let jitter = Coordinate {
-            x: normal.sample(&mut rand::rng()),
-            y: normal.sample(&mut rand::rng()),
-        };
-
-        *self + jitter
+    pub fn to_polar(self) -> (f64, Angle) {
+        match self {
+            Coordinate::Cartesian { x, y } => ((x * x + y * y).sqrt(), Angle::Radian(y.atan2(x))),
+            Coordinate::Polar { r, phi } => (r, phi),
+        }
     }
 
     #[inline]
     pub(crate) fn lerp(&self, other: &Self, t: f64) -> Self {
-        Self {
-            x: self.x + t * (other.x - self.x),
-            y: self.y + t * (other.y - self.y),
+        let (self_x, self_y) = self.to_cartesian();
+        let (other_x, other_y) = other.to_cartesian();
+
+        Self::Cartesian {
+            x: self_x + t * (other_x - self_x),
+            y: self_y + t * (other_y - self_y),
         }
     }
 }
@@ -38,9 +39,12 @@ impl Add for Coordinate {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        Self {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
+        let (self_x, self_y) = self.to_cartesian();
+        let (rhs_x, rhs_y) = rhs.to_cartesian();
+
+        Self::Cartesian {
+            x: self_x + rhs_x,
+            y: self_y + rhs_y,
         }
     }
 }
@@ -49,20 +53,11 @@ impl Div<f64> for Coordinate {
     type Output = Self;
 
     fn div(self, rhs: f64) -> Self::Output {
-        Self {
-            x: self.x / rhs,
-            y: self.y / rhs,
-        }
-    }
-}
+        let (self_x, self_y) = self.to_cartesian();
 
-impl Mul<f64> for Coordinate {
-    type Output = Self;
-
-    fn mul(self, rhs: f64) -> Self::Output {
-        Self {
-            x: self.x * rhs,
-            y: self.y * rhs,
+        Self::Cartesian {
+            x: self_x / rhs,
+            y: self_y / rhs,
         }
     }
 }
@@ -71,9 +66,12 @@ impl Sub for Coordinate {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        Self {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
+        let (self_x, self_y) = self.to_cartesian();
+        let (rhs_x, rhs_y) = rhs.to_cartesian();
+
+        Self::Cartesian {
+            x: self_x - rhs_x,
+            y: self_y - rhs_y,
         }
     }
 }

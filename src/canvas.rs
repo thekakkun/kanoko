@@ -8,7 +8,7 @@ use crate::{Color, geometry::Coordinate, point_set::PointSet, shape::Shape};
 /// Represents the image to be rendered
 pub struct Canvas<I> {
     /// The size of the canvas, in pixels
-    pub canvas_size: Coordinate,
+    pub canvas_size: (f64, f64),
 
     /// The image background [`Color`]
     pub background_color: Color,
@@ -22,7 +22,7 @@ pub struct Canvas<I> {
 
 impl<I> Canvas<I> {
     pub fn new(
-        canvas_size: Coordinate,
+        canvas_size: (f64, f64),
         background_color: Color,
         grid: impl PointSet<Index = I> + 'static,
     ) -> Self {
@@ -40,23 +40,29 @@ impl<I> Canvas<I> {
     /// `true`.
     pub fn render(&self, index_filter: impl Fn(&I) -> bool) -> Document {
         let mut document = Document::new()
-            .set("viewBox", (0, 0, self.canvas_size.x, self.canvas_size.y))
-            .set("width", self.canvas_size.x)
-            .set("height", self.canvas_size.y);
+            .set("viewBox", (0, 0, self.canvas_size.0, self.canvas_size.1))
+            .set("width", self.canvas_size.0)
+            .set("height", self.canvas_size.1);
 
         let background = self.render_background();
         document = document.add(background);
 
-        let grid_bb = self.points.bounding_box();
-        let grid_offset = (self.canvas_size - grid_bb) / 2.0;
+        let (bb_min, bb_max) = self.points.bounding_box();
+        let span = bb_max - bb_min;
+        println!("{:?}", span);
+
+        let grid_offset = (Coordinate::Cartesian {
+            x: self.canvas_size.0,
+            y: self.canvas_size.1,
+        } - span)
+            / 2.0;
 
         for index in self.points.index_iter().filter(index_filter) {
             let coordinate = self.points.index_to_coordinate(&index);
-            let group_offset = grid_offset + coordinate;
-            let group = self.render_shape_group(&index).set(
-                "transform",
-                format!("translate({},{})", group_offset.x, group_offset.y),
-            );
+            let (offset_x, offset_y) = (grid_offset + coordinate - bb_min).to_cartesian();
+            let group = self
+                .render_shape_group(&index)
+                .set("transform", format!("translate({},{})", offset_x, offset_y));
             document = document.add(group);
         }
 
@@ -70,8 +76,8 @@ impl<I> Canvas<I> {
 
     fn render_background(&self) -> Rectangle {
         Rectangle::new()
-            .set("width", self.canvas_size.x)
-            .set("height", self.canvas_size.y)
+            .set("width", self.canvas_size.0)
+            .set("height", self.canvas_size.1)
             .set("fill", self.background_color.to_svg_color())
     }
 

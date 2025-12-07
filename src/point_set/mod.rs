@@ -21,5 +21,5 @@ pub trait PointSet {
     /// The size of the box that would contain all coordinates for the set
     ///
     /// This is used to center the `PointSet` within the `Canvas`.
-    fn bounding_box(&self) -> Coordinate;
+    fn bounding_box(&self) -> (Coordinate, Coordinate);
 }
