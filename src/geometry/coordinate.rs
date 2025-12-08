@@ -11,6 +11,7 @@ pub enum Coordinate {
 
 impl Coordinate {
     /// Get the cartesian coordinates
+    #[inline]
     pub fn to_cartesian(self) -> (f64, f64) {
         match self {
             Coordinate::Cartesian { x, y } => (x, y),
@@ -19,6 +20,7 @@ impl Coordinate {
     }
 
     /// Get the polar coordinates
+    #[inline]
     pub fn to_polar(self) -> (f64, Angle) {
         match self {
             Coordinate::Cartesian { x, y } => ((x * x + y * y).sqrt(), Angle::Radian(y.atan2(x))),
@@ -26,8 +28,14 @@ impl Coordinate {
         }
     }
 
+    pub(crate) fn to_rounded_cartesian(self, decimals: i32) -> (f64, f64) {
+        let mult = 10_f64.powi(decimals);
+        let (x, y) = self.to_cartesian();
+
+        ((x * mult).round() / mult, (y * mult).round() / mult)
+    }
+
     /// Calculate the linearly interpolated point between two coordinates
-    #[inline]
     pub(crate) fn lerp(&self, other: &Self, t: f64) -> Self {
         let (self_x, self_y) = self.to_cartesian();
         let (other_x, other_y) = other.to_cartesian();
@@ -36,6 +44,13 @@ impl Coordinate {
             x: self_x + t * (other_x - self_x),
             y: self_y + t * (other_y - self_y),
         }
+    }
+
+    pub(crate) fn dist(&self, other: &Self) -> f64 {
+        let (self_x, self_y) = self.to_cartesian();
+        let (other_x, other_y) = other.to_cartesian();
+
+        ((self_x - other_x).powi(2) + (self_y - other_y).powi(2)).sqrt()
     }
 }
 

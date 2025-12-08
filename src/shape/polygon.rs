@@ -1,6 +1,6 @@
 //! A polygonal shape with rounded corners
 use rand_distr::{Distribution, multi::Dirichlet};
-use std::{collections::VecDeque, f64::consts::PI};
+use std::f64::consts::PI;
 use svg::node::element::{Path, path::Data};
 
 use itertools::Itertools;
@@ -135,7 +135,7 @@ impl<I: Copy> Shape for Polygon<I> {
         let side_coordinates = Self::generate_side_coordinates(&corner_coordinates);
 
         if let Some(first) = side_coordinates.first() {
-            let (x, y) = first.to_cartesian();
+            let (x, y) = first.to_rounded_cartesian(3);
             data = data.move_to((x, y));
 
             for (end, corner) in side_coordinates
@@ -144,8 +144,8 @@ impl<I: Copy> Shape for Polygon<I> {
                 .chain(side_coordinates.first())
                 .zip(corner_coordinates.iter())
             {
-                let (end_x, end_y) = end.to_cartesian();
-                let (corner_x, corner_y) = corner.to_cartesian();
+                let (end_x, end_y) = end.to_rounded_cartesian(3);
+                let (corner_x, corner_y) = corner.to_rounded_cartesian(3);
                 data = data.cubic_curve_to((corner_x, corner_y, corner_x, corner_y, end_x, end_y));
             }
         }

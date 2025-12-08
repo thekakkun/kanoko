@@ -59,9 +59,10 @@ impl<I> Canvas<I> {
         for index in self.points.index_iter().filter(index_filter) {
             let coordinate = self.points.index_to_coordinate(&index);
             let (offset_x, offset_y) = (grid_offset + coordinate - bb_min).to_cartesian();
-            let group = self
-                .render_shape_group(&index)
-                .set("transform", format!("translate({},{})", offset_x, offset_y));
+            let group = self.render_shape_group(&index).set(
+                "transform",
+                format!("translate({:.3},{:.3})", offset_x, offset_y),
+            );
             document = document.add(group);
         }
 
@@ -78,6 +79,10 @@ impl<I> Canvas<I> {
             .set("width", self.canvas_size.0)
             .set("height", self.canvas_size.1)
             .set("fill", self.background_color.to_svg_color())
+            .set(
+                "fill-opacity",
+                format!("{:.3}", self.background_color.to_opacity_percent()),
+            )
     }
 
     fn render_shape_group(&self, index: &I) -> Group {
