@@ -98,7 +98,11 @@ impl PointSet for Lattice {
 
     fn bounding_box(&self) -> (Coordinate, Coordinate) {
         let max_x = (self.grid_size.0 - 1) as f64 * self.a
-            + ((self.grid_size.1 - 1) % 2) as f64 * self.b * self.theta_cos;
+            + if 2 <= self.grid_size.1 {
+                self.b * self.theta_cos
+            } else {
+                0.0
+            };
         let max_y = (self.grid_size.1 - 1) as f64 * self.b * self.theta_sin;
 
         (
