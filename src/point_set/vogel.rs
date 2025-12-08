@@ -23,6 +23,7 @@ pub struct Vogel {
 
 impl Vogel {
     /// Create a new Vogel spiral
+    #[inline]
     pub fn new(seeds: usize, scaling_factor: f64, angle: Angle) -> Self {
         let radius = 2.0 * scaling_factor * ((seeds - 1) as f64).sqrt();
 
@@ -38,6 +39,7 @@ impl Vogel {
     ///
     /// This angle provides the tighest packing of points per area and is commonly seen in
     /// nature. Namely, the spirals drawn by sunflower seeds.
+    #[inline]
     pub fn new_golden(seeds: usize, scaling_factor: f64) -> Self {
         Self::new(
             seeds,

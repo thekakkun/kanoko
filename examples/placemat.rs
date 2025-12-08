@@ -1,6 +1,4 @@
-use kanoko::{
-    Canvas, Color, geometry::Angle, point_set::lattice::Lattice, shape::Polygon, static_fn,
-};
+use kanoko::{Canvas, Color, geometry::Angle, point_set::lattice::Lattice, shape::Polygon};
 use rand::{Rng, seq::IndexedRandom};
 
 /// An example with lots of randomimzation
@@ -23,7 +21,7 @@ fn main() {
     canvas.add_shape(Polygon::new(
         |_| rand::rng().random_range(3..8),
         move |_| size,
-        static_fn!(Angle::default()),
+        |_| Angle::default(),
         |_| {
             let colors = [
                 "#6f6e6a", "#b3b4af", "#b09e90", "#bea24e", "#d9bdb9", "#9a9ba0",

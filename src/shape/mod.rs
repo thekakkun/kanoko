@@ -3,14 +3,6 @@ mod polygon;
 pub use polygon::Polygon;
 use svg::node::element::Path;
 
-/// A utility macro to create a function that returns a static value
-#[macro_export]
-macro_rules! static_fn {
-    ($value:expr) => {
-        move |_| $value
-    };
-}
-
 pub type IndexFn<I, T> = Box<dyn Fn(&I) -> T>;
 
 /// A trait for defining a shape

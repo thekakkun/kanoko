@@ -10,7 +10,6 @@ use crate::{
     Color,
     geometry::{Angle, Coordinate},
     shape::{IndexFn, Shape},
-    static_fn,
 };
 
 /// A polygonal shape with rounded corners
@@ -65,10 +64,10 @@ impl<I> Polygon<I> {
         cv: Option<f64>,
     ) -> Self {
         Self::new(
-            static_fn!(sides),
-            static_fn!(size),
-            static_fn!(rotation),
-            static_fn!(color),
+            move |_| sides,
+            move |_| size,
+            move |_| rotation,
+            move |_| color,
             cv,
         )
     }

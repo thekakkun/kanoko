@@ -1,8 +1,8 @@
 use kanoko::{
-    Canvas, Color, geometry::Angle, point_set::poisson_disk::PoissonDisk, shape::Polygon, static_fn,
+    Canvas, Color, geometry::Angle, point_set::poisson_disk::PoissonDisk, shape::Polygon,
 };
 
-/// An example with PoissonDisk, colors based off Nazar amulets
+/// An example using PoissonDisk as the point set, colors based off Nazar amulets
 fn main() {
     let size = 144.0;
     let grid = PoissonDisk::new((2560.0, 1440.0), size, 30);
@@ -37,6 +37,6 @@ fn main() {
         Some(0.05),
     ));
 
-    let document = canvas.render(static_fn!(true));
+    let document = canvas.render(|_| true);
     svg::save("examples/nazar.svg", &document).unwrap();
 }

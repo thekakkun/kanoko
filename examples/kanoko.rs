@@ -1,6 +1,4 @@
-use kanoko::{
-    Canvas, Color, geometry::Angle, point_set::lattice::Lattice, shape::Polygon, static_fn,
-};
+use kanoko::{Canvas, Color, geometry::Angle, point_set::lattice::Lattice, shape::Polygon};
 
 /// An example with minimal randomization, based on the traditional Japanese tie-dye pattern
 fn main() {
@@ -23,6 +21,6 @@ fn main() {
         None,
     ));
 
-    let document = canvas.render(static_fn!(true));
+    let document = canvas.render(|_| true);
     svg::save("examples/kanoko.svg", &document).unwrap();
 }

@@ -38,6 +38,7 @@ pub struct Lattice {
 
 impl Lattice {
     /// Create a new lattice
+    #[inline]
     pub fn new(grid_size: (u16, u16), a: f64, b: f64, theta: Angle) -> Self {
         let theta_rad = theta.to_radian();
         Self {
@@ -51,26 +52,31 @@ impl Lattice {
     }
 
     /// Create a square lattice
+    #[inline]
     pub fn new_square(grid_size: (u16, u16), a: f64) -> Self {
         Self::new(grid_size, a, a, Angle::Radian(PI / 2.0))
     }
 
     /// Create a rectangular lattice
+    #[inline]
     pub fn new_rectangle(grid_size: (u16, u16), a: f64, b: f64) -> Self {
         Self::new(grid_size, a, b, Angle::Radian(PI / 2.0))
     }
 
     /// Create a centered rectangle lattice, aka a rhombic lattice
+    #[inline]
     pub fn new_centered_rectangle(grid_size: (u16, u16), a: f64, b: f64) -> Self {
         Self::new(grid_size, a, b, Angle::Radian((a / b).atan()))
     }
 
     /// Create a centered square lattice, aka a diagonal square lattice
+    #[inline]
     pub fn new_centered_square(grid_size: (u16, u16), a: f64) -> Self {
         Self::new(grid_size, a, a / SQRT_2, Angle::Radian(PI / 4.0))
     }
 
     /// Create a hexagonal lattice, aka an equilateral triangular lattice
+    #[inline]
     pub fn new_hexagonal(grid_size: (u16, u16), a: f64) -> Self {
         Self::new(grid_size, a, a, Angle::Radian(PI / 3.0))
     }

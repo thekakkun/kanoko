@@ -28,7 +28,7 @@ pub struct Index {
 /// [the algorithm described here](https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf).
 #[derive(Debug, Clone)]
 pub struct PoissonDisk {
-    /// Size of the rectangle where points are sampled
+    /// Size of the rectangle where points are placed
     pub size: (f64, f64),
 
     /// The minimum distance between points
@@ -44,6 +44,8 @@ pub struct PoissonDisk {
 }
 
 impl PoissonDisk {
+    /// Create a new PoissonDisk
+    #[inline]
     pub fn new(size: (f64, f64), r: f64, k: u16) -> Self {
         let mut poisson_disk = Self {
             size,
