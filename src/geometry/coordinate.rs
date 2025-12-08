@@ -2,6 +2,7 @@ use std::ops::{Add, Div, Sub};
 
 use crate::geometry::Angle;
 
+/// Coordinate system
 #[derive(Debug, Clone, Copy)]
 pub enum Coordinate {
     Cartesian { x: f64, y: f64 },
@@ -9,6 +10,7 @@ pub enum Coordinate {
 }
 
 impl Coordinate {
+    /// Get the cartesian coordinates
     pub fn to_cartesian(self) -> (f64, f64) {
         match self {
             Coordinate::Cartesian { x, y } => (x, y),
@@ -16,6 +18,7 @@ impl Coordinate {
         }
     }
 
+    /// Get the polar coordinates
     pub fn to_polar(self) -> (f64, Angle) {
         match self {
             Coordinate::Cartesian { x, y } => ((x * x + y * y).sqrt(), Angle::Radian(y.atan2(x))),
@@ -23,6 +26,7 @@ impl Coordinate {
         }
     }
 
+    /// Calculate the linearly interpolated point between two coordinates
     #[inline]
     pub(crate) fn lerp(&self, other: &Self, t: f64) -> Self {
         let (self_x, self_y) = self.to_cartesian();

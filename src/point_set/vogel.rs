@@ -1,3 +1,4 @@
+//! Vogel's model of the spiral
 use std::f64::consts::PI;
 
 use crate::{
@@ -5,15 +6,23 @@ use crate::{
     point_set::PointSet,
 };
 
+/// Vogel's model of the pattern drawn by the seeds of a sunflower
 #[derive(Debug, Clone, Copy)]
 pub struct Vogel {
+    /// Number of points in the spiral
     pub seeds: usize,
+
+    /// The rate at which the spiral grows
     pub scaling_factor: f64,
+
+    /// The angle turned between seeds
     pub angle: Angle,
+
     radius: f64,
 }
 
 impl Vogel {
+    /// Create a new Vogel spiral
     pub fn new(seeds: usize, scaling_factor: f64, angle: Angle) -> Self {
         let radius = 2.0 * scaling_factor * ((seeds - 1) as f64).sqrt();
 
@@ -25,6 +34,10 @@ impl Vogel {
         }
     }
 
+    /// Create a new Vogel spiral using the golden angle
+    ///
+    /// This angle provides the tighest packing of points per area and is commonly seen in
+    /// nature. Namely, the spirals drawn by sunflower seeds.
     pub fn new_golden(seeds: usize, scaling_factor: f64) -> Self {
         Self::new(
             seeds,

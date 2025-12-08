@@ -3,6 +3,7 @@ use std::{
     ops::{Add, AddAssign, Mul},
 };
 
+/// Angles
 #[derive(Debug, Clone, Copy)]
 pub enum Angle {
     Degree(f64),
@@ -16,6 +17,7 @@ impl Default for Angle {
 }
 
 impl Angle {
+    /// Get the angle in degrees
     #[inline]
     pub fn to_degree(self) -> f64 {
         match self {
@@ -25,6 +27,7 @@ impl Angle {
     }
 
     #[inline]
+    /// Get the angle in radians
     pub fn to_radian(self) -> f64 {
         match self {
             Angle::Degree(theta) => theta * PI / 180.0,

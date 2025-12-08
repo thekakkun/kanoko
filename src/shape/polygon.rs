@@ -16,7 +16,7 @@ use crate::{
 /// A polygonal shape with rounded corners
 ///
 /// Most of its fields are defined as functions of the `Index`. This allows the polygon to be
-/// rendered differently depending on where it is in the image.
+/// rendered dynamically depending on where it is in the image.
 pub struct Polygon<I> {
     /// The number of sides in the polygon
     pub sides_fn: IndexFn<I, u8>,
@@ -34,8 +34,7 @@ pub struct Polygon<I> {
     /// The color of the polygon
     pub color_fn: IndexFn<I, Color>,
 
-    /// The standard deviation used when randomizing the location of the vertices using a normal
-    /// distribution
+    /// The coefficient of variance used when randomizing the shape of the polygon
     pub cv: Option<f64>,
 }
 
