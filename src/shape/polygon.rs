@@ -109,25 +109,18 @@ impl<I> Polygon<I> {
             .collect()
     }
 
-    fn generate_side_coordinates(&self, corner_coordinates: &[Coordinate]) -> Vec<Coordinate> {
+    fn generate_side_coordinates(corner_coordinates: &[Coordinate]) -> Vec<Coordinate> {
         let normal = Normal::new(0.5, 0.1).unwrap();
+        let mut rng = rand::rng();
 
-        let mut side_coordinates: VecDeque<Coordinate> = corner_coordinates
+        let mut side_coordinates: Vec<_> = corner_coordinates
             .iter()
             .circular_tuple_windows()
-            .map(|(coordinate_1, coordinate_2)| {
-                coordinate_1.lerp(
-                    coordinate_2,
-                    (normal.sample(&mut rand::rng()) as f64).clamp(0.1, 0.9),
-                )
-            })
+            .map(|(c1, c2)| c1.lerp(c2, (normal.sample(&mut rng) as f64).clamp(0.1, 0.9)))
             .collect();
+        side_coordinates.rotate_right(1);
 
-        if let Some(last) = side_coordinates.pop_back() {
-            side_coordinates.push_front(last);
-        }
-
-        side_coordinates.into()
+        side_coordinates
     }
 }
 
@@ -135,31 +128,31 @@ impl<I: Copy> Shape for Polygon<I> {
     type Index = I;
 
     fn generate_path(&self, index: &Self::Index) -> Path {
-        let corner_coordinates = self.generate_corner_coordinates(index);
-        let side_coordinates = self.generate_side_coordinates(&corner_coordinates);
-
         let mut data = Data::new();
+        let color = (self.color_fn)(index);
+
+        let corner_coordinates = self.generate_corner_coordinates(index);
+        let side_coordinates = Self::generate_side_coordinates(&corner_coordinates);
 
         if let Some(first) = side_coordinates.first() {
             let (x, y) = first.to_cartesian();
             data = data.move_to((x, y));
-        }
-        for (end, corner) in side_coordinates
-            .iter()
-            .skip(1)
-            .chain(side_coordinates.first())
-            .zip(corner_coordinates.iter())
-        {
-            let (end_x, end_y) = end.to_cartesian();
-            let (corner_x, corner_y) = corner.to_cartesian();
-            data = data.cubic_curve_to((corner_x, corner_y, corner_x, corner_y, end_x, end_y));
-        }
-        data = data.close();
 
-        let color = (self.color_fn)(index);
+            for (end, corner) in side_coordinates
+                .iter()
+                .skip(1)
+                .chain(side_coordinates.first())
+                .zip(corner_coordinates.iter())
+            {
+                let (end_x, end_y) = end.to_cartesian();
+                let (corner_x, corner_y) = corner.to_cartesian();
+                data = data.cubic_curve_to((corner_x, corner_y, corner_x, corner_y, end_x, end_y));
+            }
+        }
+
         Path::new()
             .set("stroke", "none")
-            .set("d", data)
+            .set("d", data.close())
             .set("fill", color.to_svg_color())
             .set("fill-opacity", color.to_opacity_percent())
     }
