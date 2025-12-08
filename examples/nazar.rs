@@ -2,7 +2,7 @@ use kanoko::{
     Canvas, Color, geometry::Angle, point_set::poisson_disk::PoissonDisk, shape::Polygon, static_fn,
 };
 
-/// An example with PoissonDisk, colors based off a Nazar amulet.
+/// An example with PoissonDisk, colors based off Nazar amulets
 fn main() {
     let size = 144.0;
     let grid = PoissonDisk::new((2560.0, 1440.0), size, 30);

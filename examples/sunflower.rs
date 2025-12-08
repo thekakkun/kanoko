@@ -1,5 +1,6 @@
 use kanoko::{Canvas, Color, geometry::Angle, point_set::vogel::Vogel, shape::Polygon, static_fn};
 
+/// An example using Vogel as the point set
 fn main() {
     let grid = Vogel::new_golden(256, 50.0);
     let background_color = Color::from_hex("#fcba03").unwrap();

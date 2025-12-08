@@ -12,11 +12,10 @@ Lots of randomimzation.
 
 ## [Sunflower](sunflower.rs)
 
-An example using `Vogel` as the point set
+An example using `Vogel` as the point set.
 ![sunflower](https://github.com/user-attachments/assets/e5dc3f88-b884-4fa5-b026-d6c2a4c4bbed)
-
 
 ## [Nazar](nazar.rs)
 
-Multiple layers, colors based off a Nazar amulet.
+An example with `PoissonDisk`, colors based off of Nazar amulets.
 ![nazar](https://github.com/user-attachments/assets/f7647582-cd14-45d0-ab1e-4bf268807e2a)
