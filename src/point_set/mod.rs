@@ -1,4 +1,5 @@
 pub mod lattice;
+pub mod poisson_disk;
 pub mod vogel;
 
 use crate::geometry::Coordinate;

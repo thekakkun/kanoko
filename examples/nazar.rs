@@ -1,40 +1,42 @@
-use kanoko::{Canvas, Color, geometry::Angle, point_set::lattice::Lattice, shape::Polygon};
-use rand::Rng;
+use kanoko::{
+    Canvas, Color, geometry::Angle, point_set::poisson_disk::PoissonDisk, shape::Polygon, static_fn,
+};
 
-/// An example with multiple layers, colors based off a Nazar amulet.
+/// An example with PoissonDisk, colors based off a Nazar amulet.
 fn main() {
-    let grid = Lattice::new_hexagonal((15, 9), 450.0);
+    let size = 144.0;
+    let grid = PoissonDisk::new((2560.0, 1440.0), size, 30);
     let mut canvas = Canvas::new((2560.0, 1440.0), Color::from_hex("#fff").unwrap(), grid);
 
     canvas.add_shape(Polygon::new_static(
         7,
-        400.0,
+        size,
         Angle::default(),
         Color::from_hex("#070d97").unwrap(),
         Some(0.05),
     ));
     canvas.add_shape(Polygon::new_static(
         7,
-        300.0,
+        size * 3.0 / 4.0,
         Angle::default(),
         Color::from_hex("#fff").unwrap(),
         Some(0.05),
     ));
     canvas.add_shape(Polygon::new_static(
         7,
-        200.0,
+        size / 2.0,
         Angle::default(),
         Color::from_hex("#73bff1").unwrap(),
         Some(0.05),
     ));
     canvas.add_shape(Polygon::new_static(
         7,
-        100.0,
+        size / 4.0,
         Angle::default(),
         Color::from_hex("#000").unwrap(),
         Some(0.05),
     ));
 
-    let document = canvas.render(|_| rand::rng().random_bool(0.5));
+    let document = canvas.render(static_fn!(true));
     svg::save("examples/nazar.svg", &document).unwrap();
 }
