@@ -44,7 +44,7 @@ pub struct PoissonDisk {
 }
 
 impl PoissonDisk {
-    /// Create a new PoissonDisk
+    /// Create a new PoissonDisk sample
     #[inline]
     pub fn new(size: (f64, f64), r: f64, k: u16) -> Self {
         let mut poisson_disk = Self {
