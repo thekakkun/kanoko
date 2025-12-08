@@ -5,10 +5,10 @@
 Minimal randomization, based on the traditional Japanese tie-dye pattern.
 ![kanoko](https://github.com/user-attachments/assets/17f50dd4-4c8e-4951-a61e-ca6a09cb82e6)
 
-## [Gruvbox](gruvbox.rs)
+## [Placemat](placemat.rs)
 
-Lots of randomimzation, using colors sourced from Gruvbox.
-![gruvbox](https://github.com/user-attachments/assets/b1672413-e1a9-4392-934e-373dd5ff71ad)
+Lots of randomimzation.
+![placemat](https://github.com/user-attachments/assets/0c5f7b78-9212-4379-9319-8a667f5ee404)
 
 ## [Sunflower](sunflower.rs)
 
