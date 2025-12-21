@@ -27,3 +27,11 @@ impl Color {
         self.0.a as f64 / 255.0 * 100.0
     }
 }
+
+impl TryFrom<&str> for Color {
+    type Error = ParseHexColorError;
+
+    fn try_from(hex_str: &str) -> Result<Self, Self::Error> {
+        Ok(Self(HexColor::parse(hex_str)?))
+    }
+}

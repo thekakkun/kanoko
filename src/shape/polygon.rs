@@ -11,11 +11,13 @@ use crate::{
     geometry::{Angle, Coordinate},
     shape::{IndexFn, Shape},
 };
+use polygon_builder::{IsUnset, SetColorFn, SetRotationFn, SetSidesFn, SetSizeFn, State};
 
 /// A polygonal shape with rounded corners
 ///
 /// Most of its fields are defined as functions of the `Index`. This allows the polygon to be
 /// rendered dynamically depending on where it is in the image.
+#[derive(bon::Builder)]
 pub struct Polygon<I> {
     /// The number of sides in the polygon
     pub sides_fn: IndexFn<I, u8>,
@@ -28,6 +30,7 @@ pub struct Polygon<I> {
     /// The rotation of the polygon
     ///
     /// With no rotation, the shape is rendered "pointy side up".
+    #[builder(default = (Box::new(|_|Angle::default())))]
     pub rotation_fn: IndexFn<I, Angle>,
 
     /// The color of the polygon
@@ -154,5 +157,35 @@ impl<I: Copy> Shape for Polygon<I> {
             .set("d", data.close())
             .set("fill", color.to_svg_color())
             .set("fill-opacity", color.to_opacity_percent())
+    }
+}
+
+impl<I, S: State> PolygonBuilder<I, S> {
+    pub fn sides(self, sides: u8) -> PolygonBuilder<I, SetSidesFn<S>>
+    where
+        S::SidesFn: IsUnset,
+    {
+        self.sides_fn(Box::new(move |_| sides))
+    }
+
+    pub fn size(self, size: f64) -> PolygonBuilder<I, SetSizeFn<S>>
+    where
+        S::SizeFn: IsUnset,
+    {
+        self.size_fn(Box::new(move |_| size))
+    }
+
+    pub fn rotation(self, rotation: Angle) -> PolygonBuilder<I, SetRotationFn<S>>
+    where
+        S::RotationFn: IsUnset,
+    {
+        self.rotation_fn(Box::new(move |_| rotation))
+    }
+
+    pub fn color(self, color: Color) -> PolygonBuilder<I, SetColorFn<S>>
+    where
+        S::ColorFn: IsUnset,
+    {
+        self.color_fn(Box::new(move |_| color))
     }
 }

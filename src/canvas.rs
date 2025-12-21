@@ -6,18 +6,22 @@ use svg::{
 use crate::{Color, geometry::Coordinate, point_set::PointSet, shape::Shape};
 
 /// Represents the image to be rendered
+#[derive(bon::Builder)]
 pub struct Canvas<I> {
+    /// The list of [`Shape`] to be rendered, ordered from lowest layer to highest
+    #[builder(field)]
+    pub shapes: Vec<Box<dyn Shape<Index = I>>>,
+
     /// The size of the canvas, in pixels
+    #[builder(with = |x: f64, y: f64| ( x, y ))]
     pub canvas_size: (f64, f64),
 
     /// The image background [`Color`]
     pub background_color: Color,
 
     /// The [`PointSet`] used for the image
+    #[builder(with = |points:impl PointSet<Index=I> + 'static| Box::new(points))]
     pub points: Box<dyn PointSet<Index = I>>,
-
-    /// The list of [`Shape`] to be rendered, ordered from lowest layer to highest
-    pub shapes: Vec<Box<dyn Shape<Index = I>>>,
 }
 
 impl<I> Canvas<I> {
@@ -93,5 +97,12 @@ impl<I> Canvas<I> {
         }
 
         group
+    }
+}
+
+impl<I, S: canvas_builder::State> CanvasBuilder<I, S> {
+    pub fn add_shape(&mut self, shape: impl Shape<Index = I> + 'static) -> &mut Self {
+        self.shapes.push(Box::new(shape));
+        self
     }
 }
