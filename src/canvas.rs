@@ -7,10 +7,10 @@ use crate::{Color, geometry::Coordinate, point_set::PointSet, shape::Shape};
 
 /// Represents the image to be rendered
 #[derive(bon::Builder)]
-pub struct Canvas<I> {
+pub struct Canvas<PS: PointSet> {
     /// The list of [`Shape`] to be rendered, ordered from lowest layer to highest
     #[builder(field)]
-    pub shapes: Vec<Box<dyn Shape<Index = I>>>,
+    pub shapes: Vec<Box<dyn Shape<Index = PS::Index>>>,
 
     /// The size of the canvas, in pixels
     #[builder(with = |x: f64, y: f64| ( x, y ))]
@@ -19,21 +19,18 @@ pub struct Canvas<I> {
     /// The image background [`Color`]
     pub background_color: Color,
 
-    /// The [`PointSet`] used for the image
-    #[builder(with = |points:impl PointSet<Index=I> + 'static| Box::new(points))]
-    pub points: Box<dyn PointSet<Index = I>>,
+    // /// The [`PointSet`] used for the image
+    // #[builder(with = |points:impl PointSet<Index=I> + 'static| Box::new(points))]
+    // pub points: Box<dyn PointSet<Index = I>>,
+    pub points: PS,
 }
 
-impl<I> Canvas<I> {
-    pub fn new(
-        canvas_size: (f64, f64),
-        background_color: Color,
-        grid: impl PointSet<Index = I> + 'static,
-    ) -> Self {
+impl<PS: PointSet> Canvas<PS> {
+    pub fn new(canvas_size: (f64, f64), background_color: Color, points: PS) -> Self {
         Self {
             canvas_size,
             background_color,
-            points: Box::new(grid),
+            points,
             shapes: Vec::new(),
         }
     }
@@ -42,7 +39,7 @@ impl<I> Canvas<I> {
     ///
     /// `index_filter` can be used to only render the shapes at a given `Index` if it returns
     /// `true`.
-    pub fn render(&self, index_filter: impl Fn(&I) -> bool) -> Document {
+    pub fn render(&self, index_filter: impl Fn(&PS::Index) -> bool) -> Document {
         let mut document = Document::new()
             .set("viewBox", (0, 0, self.canvas_size.0, self.canvas_size.1))
             .set("width", self.canvas_size.0)
@@ -74,7 +71,7 @@ impl<I> Canvas<I> {
     }
 
     /// Add a shape on top of the `shapes` vec
-    pub fn add_shape(&mut self, shape: impl Shape<Index = I> + 'static) {
+    pub fn add_shape(&mut self, shape: impl Shape<Index = PS::Index> + 'static) {
         self.shapes.push(Box::new(shape));
     }
 
@@ -89,7 +86,7 @@ impl<I> Canvas<I> {
             )
     }
 
-    fn render_shape_group(&self, index: &I) -> Group {
+    fn render_shape_group(&self, index: &PS::Index) -> Group {
         let mut group = Group::new();
 
         for shape in &self.shapes {
@@ -100,8 +97,12 @@ impl<I> Canvas<I> {
     }
 }
 
-impl<I, S: canvas_builder::State> CanvasBuilder<I, S> {
-    pub fn add_shape(&mut self, shape: impl Shape<Index = I> + 'static) -> &mut Self {
+impl<PS, S> CanvasBuilder<PS, S>
+where
+    PS: PointSet,
+    S: canvas_builder::State,
+{
+    pub fn add_shape(&mut self, shape: impl Shape<Index = PS::Index> + 'static) -> &mut Self {
         self.shapes.push(Box::new(shape));
         self
     }

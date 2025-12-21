@@ -1,4 +1,4 @@
-use kanoko::{Canvas, Color, point_set::lattice::Lattice, shape::Polygon};
+use kanoko::{Canvas, point_set::lattice::Lattice, shape::Polygon};
 
 /// An example with minimal randomization, based on the traditional Japanese tie-dye pattern
 fn main() {

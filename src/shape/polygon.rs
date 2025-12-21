@@ -30,7 +30,8 @@ pub struct Polygon<I> {
     /// The rotation of the polygon
     ///
     /// With no rotation, the shape is rendered "pointy side up".
-    #[builder(default = (Box::new(|_|Angle::default())))]
+    #[builder(default = (Box::new(|_|Angle::default())),with = |func: impl  Fn(&I) -> Angle + 'static| Box::new(func) as IndexFn<I, Angle>)]
+    // #[builder(with = |func: impl  Fn(&I) -> Angle + 'static| Box::new(func) as IndexFn<I, Angle>)]
     pub rotation_fn: IndexFn<I, Angle>,
 
     /// The color of the polygon
@@ -179,7 +180,7 @@ impl<I, S: State> PolygonBuilder<I, S> {
     where
         S::RotationFn: IsUnset,
     {
-        self.rotation_fn(Box::new(move |_| rotation))
+        self.rotation_fn(move |_| rotation)
     }
 
     pub fn color(self, color: Color) -> PolygonBuilder<I, SetColorFn<S>>
