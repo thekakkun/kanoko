@@ -4,9 +4,14 @@ use kanoko::{Canvas, point_set::lattice::Lattice, shape::Polygon};
 fn main() {
     let background_color = "#002e4e".try_into().unwrap();
     let mut canvas_builder = Canvas::builder()
-        .canvas_size(2560.0, 1440.0)
+        .size(2560.0, 1440.0)
         .background_color(background_color)
-        .points(Lattice::new_centered_square((19, 16), 90.0));
+        .points(
+            Lattice::diamond_builder()
+                .grid_size(19, 16)
+                .len_a(90.0)
+                .build(),
+        );
 
     canvas_builder.add_shape(
         Polygon::builder()
