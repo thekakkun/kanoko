@@ -90,12 +90,12 @@ impl<I> Polygon<I> {
 
         let divisions = if let Some(cv_fn) = &self.cv_fn {
             let cv = cv_fn(index);
-            let alpha = (sides as f64 - 1_f64 - cv.powi(2)) / (sides as f64 * cv.powi(2));
+            let alpha = (f64::from(sides) - 1_f64 - cv.powi(2)) / (f64::from(sides) * cv.powi(2));
             let params = vec![alpha; sides as usize];
             let dirichlet = Dirichlet::new(&params).unwrap();
             dirichlet.sample(&mut rand::rng())
         } else {
-            vec![1.0 / sides as f64; sides as usize]
+            vec![1.0 / f64::from(sides); sides as usize]
         };
 
         divisions

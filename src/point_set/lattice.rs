@@ -125,20 +125,21 @@ impl PointSet for Lattice {
     }
 
     fn index_to_coordinate(&self, index: &Self::Index) -> Coordinate {
-        let x = index.u as f64 * self.len_a + (index.v % 2) as f64 * self.len_b * self.theta_cos;
-        let y = index.v as f64 * self.len_b * self.theta_sin;
+        let x =
+            f64::from(index.u) * self.len_a + f64::from(index.v % 2) * self.len_b * self.theta_cos;
+        let y = f64::from(index.v) * self.len_b * self.theta_sin;
 
         Coordinate::Cartesian { x, y }
     }
 
     fn bounding_box(&self) -> (Coordinate, Coordinate) {
-        let max_x = (self.grid_size.0 - 1) as f64 * self.len_a
+        let max_x = f64::from(self.grid_size.0 - 1) * self.len_a
             + if 2 <= self.grid_size.1 {
                 self.len_b * self.theta_cos
             } else {
                 0.0
             };
-        let max_y = (self.grid_size.1 - 1) as f64 * self.len_b * self.theta_sin;
+        let max_y = f64::from(self.grid_size.1 - 1) * self.len_b * self.theta_sin;
 
         (
             Coordinate::Cartesian { x: 0.0, y: 0.0 },

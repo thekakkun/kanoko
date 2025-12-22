@@ -46,7 +46,7 @@ pub struct PoissonDisk {
 
 #[bon]
 impl PoissonDisk {
-    /// Create a new PoissonDisk sample
+    /// Create a new `PoissonDisk` sample
     #[inline]
     #[builder]
     pub fn new(

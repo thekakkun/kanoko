@@ -61,7 +61,7 @@ impl<P: PointSet> Canvas<P> {
             let (offset_x, offset_y) = (grid_offset + coordinate - bb_min).to_cartesian();
             let group = self.render_shape_group(&index).set(
                 "transform",
-                format!("translate({:.3},{:.3})", offset_x, offset_y),
+                format!("translate({offset_x:.3},{offset_y:.3})"),
             );
             document = document.add(group);
         }

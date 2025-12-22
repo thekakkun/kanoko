@@ -7,7 +7,7 @@ use crate::geometry::Coordinate;
 /// A trait for putting points on a 2D plane.
 ///
 /// Each point is given an [`Index`](PointSet::Index) which can be mapped onto a [`Coordinate`]. The bounding box of
-/// all points in the PointSet are used to center it within the [`Canvas`](crate::Canvas).
+/// all points in the `PointSet` are used to center it within the [`Canvas`](crate::Canvas).
 pub trait PointSet {
     type Index;
 

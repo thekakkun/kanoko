@@ -24,7 +24,7 @@ impl Color {
 
     #[inline]
     pub(crate) fn to_opacity_percent(self) -> f64 {
-        self.0.a as f64 / 255.0 * 100.0
+        f64::from(self.0.a) / 255.0 * 100.0
     }
 }
 
