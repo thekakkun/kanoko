@@ -4,6 +4,7 @@ use std::{
     f64::consts::{PI, SQRT_2},
 };
 
+use bon::bon;
 use itertools::iproduct;
 use rand::Rng;
 
@@ -43,10 +44,16 @@ pub struct PoissonDisk {
     grid: HashMap<Index, Coordinate>,
 }
 
+#[bon]
 impl PoissonDisk {
     /// Create a new PoissonDisk sample
     #[inline]
-    pub fn new(size: (f64, f64), r: f64, k: u16) -> Self {
+    #[builder]
+    pub fn new(
+        #[builder(with = |x: f64, y: f64| ( x, y ))] size: (f64, f64),
+        r: f64,
+        k: u16,
+    ) -> Self {
         let mut poisson_disk = Self {
             size,
             r,

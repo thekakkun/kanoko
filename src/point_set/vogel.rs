@@ -1,6 +1,8 @@
 //! Vogel's model of the spiral
 use std::f64::consts::PI;
 
+use bon::bon;
+
 use crate::{
     geometry::{Angle, Coordinate},
     point_set::PointSet,
@@ -21,9 +23,11 @@ pub struct Vogel {
     radius: f64,
 }
 
+#[bon]
 impl Vogel {
     /// Create a new Vogel spiral
     #[inline]
+    #[builder(start_fn = builder)]
     pub fn new(seeds: usize, scaling_factor: f64, angle: Angle) -> Self {
         let radius = 2.0 * scaling_factor * ((seeds - 1) as f64).sqrt();
 
@@ -40,6 +44,7 @@ impl Vogel {
     /// This angle provides the tighest packing of points per area and is commonly seen in
     /// nature. Namely, the spirals drawn by sunflower seeds.
     #[inline]
+    #[builder(start_fn = golden_builder, finish_fn = build)]
     pub fn new_golden(seeds: usize, scaling_factor: f64) -> Self {
         Self::new(
             seeds,

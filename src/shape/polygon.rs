@@ -11,7 +11,7 @@ use crate::{
     geometry::{Angle, Coordinate},
     shape::{IndexFn, Shape},
 };
-use polygon_builder::{IsUnset, SetColorFn, SetRotationFn, SetSidesFn, SetSizeFn, State};
+use polygon_builder::{IsUnset, SetColorFn, SetCvFn, SetRotationFn, SetSidesFn, SetSizeFn, State};
 
 /// A polygonal shape with rounded corners
 ///
@@ -20,25 +20,32 @@ use polygon_builder::{IsUnset, SetColorFn, SetRotationFn, SetSidesFn, SetSizeFn,
 #[derive(bon::Builder)]
 pub struct Polygon<I> {
     /// The number of sides in the polygon
+    #[builder(with = |func: impl Fn(&I) -> u8 + 'static| Box::new(func))]
     pub sides_fn: IndexFn<I, u8>,
 
     /// The size of the polygon
     ///
     /// This is the diameter of the circle that the vertices of the polygon would lie on.
+    #[builder(with = |func: impl Fn(&I) -> f64 + 'static| Box::new(func))]
     pub size_fn: IndexFn<I, f64>,
 
     /// The rotation of the polygon
     ///
     /// With no rotation, the shape is rendered "pointy side up".
-    #[builder(default = (Box::new(|_|Angle::default())),with = |func: impl  Fn(&I) -> Angle + 'static| Box::new(func) as IndexFn<I, Angle>)]
+    #[builder(
+        default = (Box::new(|_|Angle::default())),
+        with = |func: impl Fn(&I) -> Angle + 'static| Box::new(func)
+    )]
     // #[builder(with = |func: impl  Fn(&I) -> Angle + 'static| Box::new(func) as IndexFn<I, Angle>)]
     pub rotation_fn: IndexFn<I, Angle>,
 
     /// The color of the polygon
+    #[builder(with = |func: impl Fn(&I) -> Color + 'static| Box::new(func))]
     pub color_fn: IndexFn<I, Color>,
 
     /// The coefficient of variance used when randomizing the shape of the polygon
-    pub cv: Option<f64>,
+    #[builder(with = |func: impl Fn(&I) -> f64 + 'static| Box::new(func))]
+    pub cv_fn: Option<IndexFn<I, f64>>,
 }
 
 impl<I> Polygon<I> {
@@ -48,14 +55,14 @@ impl<I> Polygon<I> {
         size_fn: impl Fn(&I) -> f64 + 'static,
         rotation_fn: impl Fn(&I) -> Angle + 'static,
         color_fn: impl Fn(&I) -> Color + 'static,
-        cv: Option<f64>,
+        cv_fn: Option<impl Fn(&I) -> f64 + 'static>,
     ) -> Self {
         Self {
             sides_fn: Box::new(sides_fn),
             size_fn: Box::new(size_fn),
             rotation_fn: Box::new(rotation_fn),
             color_fn: Box::new(color_fn),
-            cv,
+            cv_fn: cv_fn.map(|f| Box::new(f) as Box<dyn Fn(&I) -> f64>),
         }
     }
 
@@ -72,7 +79,7 @@ impl<I> Polygon<I> {
             move |_| size,
             move |_| rotation,
             move |_| color,
-            cv,
+            cv.map(|cv| move |_: &I| cv),
         )
     }
 
@@ -81,7 +88,8 @@ impl<I> Polygon<I> {
         let size = (self.size_fn)(index) / 2.0;
         let rotation = Angle::Radian(-PI / 2.0) + (self.rotation_fn)(index);
 
-        let divisions = if let Some(cv) = self.cv {
+        let divisions = if let Some(cv_fn) = &self.cv_fn {
+            let cv = cv_fn(index);
             let alpha = (sides as f64 - 1_f64 - cv.powi(2)) / (sides as f64 * cv.powi(2));
             let params = vec![alpha; sides as usize];
             let dirichlet = Dirichlet::new(&params).unwrap();
@@ -97,7 +105,8 @@ impl<I> Polygon<I> {
                 Some(*state)
             })
             .map(|theta| {
-                let r = if let Some(cv) = self.cv {
+                let r = if let Some(cv_fn) = &self.cv_fn {
+                    let cv = cv_fn(index);
                     let normal = Normal::new(size, cv * size).unwrap();
                     normal.sample(&mut rand::rng())
                 } else {
@@ -166,14 +175,14 @@ impl<I, S: State> PolygonBuilder<I, S> {
     where
         S::SidesFn: IsUnset,
     {
-        self.sides_fn(Box::new(move |_| sides))
+        self.sides_fn(move |_| sides)
     }
 
     pub fn size(self, size: f64) -> PolygonBuilder<I, SetSizeFn<S>>
     where
         S::SizeFn: IsUnset,
     {
-        self.size_fn(Box::new(move |_| size))
+        self.size_fn(move |_| size)
     }
 
     pub fn rotation(self, rotation: Angle) -> PolygonBuilder<I, SetRotationFn<S>>
@@ -187,6 +196,12 @@ impl<I, S: State> PolygonBuilder<I, S> {
     where
         S::ColorFn: IsUnset,
     {
-        self.color_fn(Box::new(move |_| color))
+        self.color_fn(move |_| color)
+    }
+    pub fn cv(self, cv: f64) -> PolygonBuilder<I, SetCvFn<S>>
+    where
+        S::CvFn: IsUnset,
+    {
+        self.cv_fn(move |_| cv)
     }
 }

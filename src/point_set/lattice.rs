@@ -1,6 +1,7 @@
 //! A 2D lattice.
 use std::f64::consts::{PI, SQRT_2};
 
+use bon::bon;
 use itertools::iproduct;
 
 use crate::{
@@ -11,8 +12,8 @@ use crate::{
 /// The index for each point in the lattice
 #[derive(Debug, Clone, Copy)]
 pub struct Index {
-    pub x: u16,
-    pub y: u16,
+    pub u: u16,
+    pub v: u16,
 }
 
 /// A 2D lattice, composed of points defined by two vectors `a` and `b` with angle `theta`
@@ -24,10 +25,10 @@ pub struct Lattice {
     pub grid_size: (u16, u16),
 
     /// Magnitude of the `a` vector
-    pub a: f64,
+    pub len_a: f64,
 
     /// Magnitude of the `b` vector
-    pub b: f64,
+    pub len_b: f64,
 
     /// Angle between the `a` and `b` vector
     pub theta: Angle,
@@ -36,15 +37,22 @@ pub struct Lattice {
     theta_sin: f64,
 }
 
+#[bon]
 impl Lattice {
     /// Create a new lattice
     #[inline]
-    pub fn new(grid_size: (u16, u16), a: f64, b: f64, theta: Angle) -> Self {
+    #[builder(start_fn = builder)]
+    pub fn new(
+        #[builder(with = |u: u16, v: u16| (u,v))] grid_size: (u16, u16),
+        len_a: f64,
+        len_b: f64,
+        theta: Angle,
+    ) -> Self {
         let theta_rad = theta.to_radian();
         Self {
             grid_size,
-            a,
-            b,
+            len_a,
+            len_b,
             theta,
             theta_cos: theta_rad.cos(),
             theta_sin: theta_rad.sin(),
@@ -53,32 +61,59 @@ impl Lattice {
 
     /// Create a square lattice
     #[inline]
-    pub fn new_square(grid_size: (u16, u16), a: f64) -> Self {
-        Self::new(grid_size, a, a, Angle::Radian(PI / 2.0))
+    #[builder(start_fn = square_builder, finish_fn = build)]
+    pub fn new_square(
+        #[builder(with = |u: u16, v: u16| (u,v))] grid_size: (u16, u16),
+        len_a: f64,
+    ) -> Self {
+        Self::new(grid_size, len_a, len_a, Angle::Radian(PI / 2.0))
     }
 
     /// Create a rectangular lattice
     #[inline]
-    pub fn new_rectangle(grid_size: (u16, u16), a: f64, b: f64) -> Self {
-        Self::new(grid_size, a, b, Angle::Radian(PI / 2.0))
+    #[builder(start_fn = rectangular_builder, finish_fn = build)]
+    pub fn new_rectangular(
+        #[builder(with = |u: u16, v: u16| (u,v))] grid_size: (u16, u16),
+        len_a: f64,
+        len_b: f64,
+    ) -> Self {
+        Self::new(grid_size, len_a, len_b, Angle::Radian(PI / 2.0))
     }
 
     /// Create a centered rectangle lattice, aka a rhombic lattice
     #[inline]
-    pub fn new_centered_rectangle(grid_size: (u16, u16), a: f64, b: f64) -> Self {
-        Self::new(grid_size, a, b, Angle::Radian((a / b).atan()))
+    #[builder(start_fn = rhombic_builder, finish_fn = build)]
+    pub fn new_rhombic(
+        #[builder(with = |u: u16, v: u16| (u,v))] grid_size: (u16, u16),
+        len_a: f64,
+        len_b: f64,
+    ) -> Self {
+        Self::new(
+            grid_size,
+            len_a,
+            len_b,
+            Angle::Radian((len_a / len_b).atan()),
+        )
     }
 
     /// Create a centered square lattice, aka a diagonal square lattice
     #[inline]
-    pub fn new_centered_square(grid_size: (u16, u16), a: f64) -> Self {
-        Self::new(grid_size, a, a / SQRT_2, Angle::Radian(PI / 4.0))
+    #[builder(start_fn = diamond_builder, finish_fn = build)]
+    pub fn new_diamond(
+        #[builder(with = |u: u16, v: u16| (u,v))] grid_size: (u16, u16),
+        len_a: f64,
+    ) -> Self {
+        Self::new(grid_size, len_a, len_a / SQRT_2, Angle::Radian(PI / 4.0))
     }
 
     /// Create a hexagonal lattice, aka an equilateral triangular lattice
     #[inline]
-    pub fn new_hexagonal(grid_size: (u16, u16), a: f64) -> Self {
-        Self::new(grid_size, a, a, Angle::Radian(PI / 3.0))
+    #[builder(start_fn = hexagonal_builder, finish_fn = build)]
+    pub fn new_hexagonal(
+        #[builder(with = |u: u16, v: u16| (u,v))] grid_size: (u16, u16),
+        len_a: f64,
+    ) -> Self {
+        Self::new(grid_size, len_a, len_a, Angle::Radian(PI / 3.0))
     }
 }
 
@@ -86,24 +121,24 @@ impl PointSet for Lattice {
     type Index = Index;
 
     fn index_iter(&self) -> Box<dyn Iterator<Item = Self::Index>> {
-        Box::new(iproduct!(0..self.grid_size.0, 0..self.grid_size.1).map(|(x, y)| Index { x, y }))
+        Box::new(iproduct!(0..self.grid_size.0, 0..self.grid_size.1).map(|(u, v)| Index { u, v }))
     }
 
     fn index_to_coordinate(&self, index: &Self::Index) -> Coordinate {
-        let x = index.x as f64 * self.a + (index.y % 2) as f64 * self.b * self.theta_cos;
-        let y = index.y as f64 * self.b * self.theta_sin;
+        let x = index.u as f64 * self.len_a + (index.v % 2) as f64 * self.len_b * self.theta_cos;
+        let y = index.v as f64 * self.len_b * self.theta_sin;
 
         Coordinate::Cartesian { x, y }
     }
 
     fn bounding_box(&self) -> (Coordinate, Coordinate) {
-        let max_x = (self.grid_size.0 - 1) as f64 * self.a
+        let max_x = (self.grid_size.0 - 1) as f64 * self.len_a
             + if 2 <= self.grid_size.1 {
-                self.b * self.theta_cos
+                self.len_b * self.theta_cos
             } else {
                 0.0
             };
-        let max_y = (self.grid_size.1 - 1) as f64 * self.b * self.theta_sin;
+        let max_y = (self.grid_size.1 - 1) as f64 * self.len_b * self.theta_sin;
 
         (
             Coordinate::Cartesian { x: 0.0, y: 0.0 },
