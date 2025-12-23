@@ -23,4 +23,4 @@ An example using `Vogel` as the point set.
 ## [Nazar](nazar.rs)
 
 An example using `PoissonDisk` as the point set, colors based off Nazar amulets
-![nazar](https://github.com/user-attachments/assets/dda3b3dd-ec67-4996-89c3-9093a0f0ee65)
+![nazar](https://github.com/user-attachments/assets/d8eac079-4938-4389-b510-7ec68fd7f6e6)
