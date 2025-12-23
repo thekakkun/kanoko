@@ -1,4 +1,5 @@
 use kanoko::{Canvas, point_set::poisson_disk::PoissonDisk, shape::Polygon};
+use rand_distr::{Distribution, weighted::WeightedIndex};
 
 /// An example using PoissonDisk as the point set, colors based off Nazar amulets
 fn main() {
@@ -30,7 +31,14 @@ fn main() {
     canvas_builder.add_shape(
         polygon_builder()
             .size(size / 2.0)
-            .color("#73bff1".try_into().unwrap())
+            .color_fn(|_| {
+                let colors = vec!["#73bff1", "#daa520"];
+                let weights = vec![15, 1];
+
+                let dist = WeightedIndex::new(&weights).unwrap();
+
+                colors[dist.sample(&mut rand::rng())].try_into().unwrap()
+            })
             .build(),
     );
     canvas_builder.add_shape(
