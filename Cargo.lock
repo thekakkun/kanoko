@@ -155,7 +155,7 @@ dependencies = [
 
 [[package]]
 name = "kanoko"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "bon",
  "hex_color",
