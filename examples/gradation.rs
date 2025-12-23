@@ -4,7 +4,7 @@ use kanoko::{
     shape::Polygon,
 };
 
-/// An example with minimal randomization, based on the traditional Japanese tie-dye pattern
+/// An example where the shapes are varied depending on the index.
 fn main() {
     let background_color = "#ddd".try_into().unwrap();
     let mut canvas_builder = Canvas::builder()
@@ -20,9 +20,9 @@ fn main() {
 
     canvas_builder.add_shape(
         Polygon::builder()
-            .sides_fn(|Index { u, .. }| (*u as u8) + 3)
-            .size_fn(|Index { v, .. }| 70.0 + (v + 1) as f64 * 30.0)
-            .color_fn(|Index { u, v }| Color::new((*u + 1) as u8 * 25, 0, (*v + 1) as u8 * 20, 255))
+            .sides_fn(|Index { u, .. }| *u as u8 + 3)
+            .size_fn(|Index { v, .. }| *v as f64 * 35.0 + 80.0)
+            .color_fn(|Index { u, v }| Color::new((*u + 1) as u8 * 25, 0, (*v + 1) as u8 * 25, 255))
             .build(),
     );
 

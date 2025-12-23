@@ -5,6 +5,10 @@
 Minimal randomization, based on the traditional Japanese tie-dye pattern.
 ![kanoko](https://github.com/user-attachments/assets/17f50dd4-4c8e-4951-a61e-ca6a09cb82e6)
 
+## [Gradation](gradation.rs)
+
+An example where the shapes are varied depending on the index.
+
 ## [Placemat](placemat.rs)
 
 Lots of randomimzation.

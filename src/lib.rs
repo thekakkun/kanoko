@@ -16,7 +16,7 @@
 #![doc = include_str!("../examples/kanoko.rs")]
 //! ```
 
-mod canvas;
+pub mod canvas;
 mod color;
 pub mod geometry;
 pub mod point_set;

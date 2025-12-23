@@ -15,7 +15,7 @@ use polygon_builder::{IsUnset, SetColorFn, SetCvFn, SetRotationFn, SetSidesFn, S
 
 /// A polygonal shape with rounded corners
 ///
-/// Most of its fields are defined as functions of the `Index`. This allows the polygon to be
+/// Its fields are defined as functions of `Index`. This allows the polygon to be
 /// rendered dynamically depending on where it is in the image.
 #[derive(bon::Builder)]
 pub struct Polygon<I> {
@@ -33,7 +33,7 @@ pub struct Polygon<I> {
     ///
     /// With no rotation, the shape is rendered "pointy side up".
     #[builder(
-        default = (Box::new(|_|Angle::default())),
+        default = (Box::new(|_| Angle::default())),
         with = |func: impl Fn(&I) -> Angle + 'static| Box::new(func)
     )]
     // #[builder(with = |func: impl  Fn(&I) -> Angle + 'static| Box::new(func) as IndexFn<I, Angle>)]
@@ -170,38 +170,21 @@ impl<I: Copy> Shape for Polygon<I> {
     }
 }
 
+macro_rules! impl_static_setter {
+    ($method:ident -> $fn_method:ident: $type:ty, $state:ident, $field:ident) => {
+        pub fn $method(self, value: $type) -> PolygonBuilder<I, $state<S>>
+        where
+            S::$field: IsUnset,
+        {
+            self.$fn_method(move |_| value)
+        }
+    };
+}
+
 impl<I, S: State> PolygonBuilder<I, S> {
-    pub fn sides(self, sides: u8) -> PolygonBuilder<I, SetSidesFn<S>>
-    where
-        S::SidesFn: IsUnset,
-    {
-        self.sides_fn(move |_| sides)
-    }
-
-    pub fn size(self, size: f64) -> PolygonBuilder<I, SetSizeFn<S>>
-    where
-        S::SizeFn: IsUnset,
-    {
-        self.size_fn(move |_| size)
-    }
-
-    pub fn rotation(self, rotation: Angle) -> PolygonBuilder<I, SetRotationFn<S>>
-    where
-        S::RotationFn: IsUnset,
-    {
-        self.rotation_fn(move |_| rotation)
-    }
-
-    pub fn color(self, color: Color) -> PolygonBuilder<I, SetColorFn<S>>
-    where
-        S::ColorFn: IsUnset,
-    {
-        self.color_fn(move |_| color)
-    }
-    pub fn cv(self, cv: f64) -> PolygonBuilder<I, SetCvFn<S>>
-    where
-        S::CvFn: IsUnset,
-    {
-        self.cv_fn(move |_| cv)
-    }
+    impl_static_setter!(sides -> sides_fn: u8, SetSidesFn, SidesFn);
+    impl_static_setter!(size -> size_fn: f64, SetSizeFn, SizeFn);
+    impl_static_setter!(rotation -> rotation_fn: Angle, SetRotationFn, RotationFn);
+    impl_static_setter!(color -> color_fn: Color, SetColorFn, ColorFn);
+    impl_static_setter!(cv -> cv_fn: f64, SetCvFn, CvFn);
 }
