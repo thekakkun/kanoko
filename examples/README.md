@@ -8,6 +8,7 @@ Minimal randomization, based on the traditional Japanese tie-dye pattern.
 ## [Gradation](gradation.rs)
 
 An example where the shapes are varied depending on the index.
+![gradation](https://github.com/user-attachments/assets/54c7e7ff-724d-456a-b10a-f81eb8838548)
 
 ## [Placemat](placemat.rs)
 
