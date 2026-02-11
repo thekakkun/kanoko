@@ -12,6 +12,6 @@ license-file = "LICENSE"
 bon = "3.8.1"
 hex_color = "3.0.0"
 itertools = "0.14.0"
-rand = "0.10.0-rc.5"
-rand_distr = { version = "0.6.0-rc.0", features = ["alloc"] }
+rand = "0.10.0"
+rand_distr = { version = "0.6.0", features = ["alloc"] }
 svg = "0.18.0"

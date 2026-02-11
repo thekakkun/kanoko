@@ -1,4 +1,5 @@
 //! Fast poisson disk sampling algorithm for generating blue noise
+use rand::RngExt;
 use std::{
     collections::HashMap,
     f64::consts::{PI, SQRT_2},
@@ -6,7 +7,6 @@ use std::{
 
 use bon::bon;
 use itertools::iproduct;
-use rand::Rng;
 
 use crate::{
     geometry::{Angle, Coordinate},
