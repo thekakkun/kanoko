@@ -1,5 +1,3 @@
-use std::cmp::min;
-
 use crate::geometry::Coordinate;
 
 /// Bounding Box

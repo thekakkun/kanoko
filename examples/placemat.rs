@@ -1,5 +1,5 @@
 use kanoko::{Canvas, geometry::Angle, point_set::lattice::Lattice, shape::Polygon};
-use rand::{Rng, seq::IndexedRandom};
+use rand::{RngExt, seq::IndexedRandom};
 
 /// An example with lots of randomimzation
 fn main() {
