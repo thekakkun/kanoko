@@ -101,6 +101,31 @@ impl BoundingBox {
     }
 }
 
+impl Add for BoundingBox {
+    type Output = BoundingBox;
+
+    fn add(self, rhs: BoundingBox) -> Self::Output {
+        let BoundingBox(self_min, self_max) = self;
+        let BoundingBox(other_min, other_max) = rhs;
+
+        let (self_min_x, self_min_y) = self_min.to_cartesian();
+        let (self_max_x, self_max_y) = self_max.to_cartesian();
+        let (other_min_x, other_min_y) = other_min.to_cartesian();
+        let (other_max_x, other_max_y) = other_max.to_cartesian();
+
+        let coordinate1 = Coordinate::Cartesian {
+            x: self_min_x.min(other_min_x),
+            y: self_min_y.min(other_min_y),
+        };
+        let coordinate2 = Coordinate::Cartesian {
+            x: self_max_x.max(other_max_x),
+            y: self_max_y.max(other_max_y),
+        };
+
+        BoundingBox::new(coordinate1, coordinate2)
+    }
+}
+
 impl Add<Coordinate> for BoundingBox {
     type Output = BoundingBox;
 
