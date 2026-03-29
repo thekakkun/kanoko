@@ -92,7 +92,7 @@ impl Lattice {
             grid_size,
             len_a,
             len_b,
-            Angle::Radian((len_a / len_b).atan()),
+            Angle::Radian((len_a / len_b / 2.0).acos()),
         )
     }
 
