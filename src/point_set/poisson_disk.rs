@@ -9,7 +9,7 @@ use bon::bon;
 use itertools::iproduct;
 
 use crate::{
-    geometry::{Angle, Coordinate},
+    geometry::{Angle, BoundingBox, Coordinate},
     point_set::PointSet,
 };
 
@@ -130,8 +130,8 @@ impl PointSet for PoissonDisk {
         *self.grid.get(index).unwrap()
     }
 
-    fn bounding_box(&self) -> (Coordinate, Coordinate) {
-        (
+    fn bounding_box(&self) -> BoundingBox {
+        BoundingBox::new(
             Coordinate::Cartesian { x: 0.0, y: 0.0 },
             Coordinate::Cartesian {
                 x: self.size.0,

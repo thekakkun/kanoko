@@ -3,7 +3,12 @@ use svg::{
     node::element::{Group, Rectangle},
 };
 
-use crate::{Color, geometry::Coordinate, point_set::PointSet, shape::Shape};
+use crate::{
+    Color,
+    geometry::{BoundingBox, Coordinate},
+    point_set::PointSet,
+    shape::Shape,
+};
 use canvas_builder::State;
 
 /// Represents the image to be rendered
@@ -47,23 +52,20 @@ impl<P: PointSet> Canvas<P> {
         let background = self.render_background();
         document = document.add(background);
 
-        let (bb_min, bb_max) = self.points.bounding_box();
-        let span = bb_max - bb_min;
-
+        let bb = self.points.bounding_box();
         let grid_offset = (Coordinate::Cartesian {
             x: self.size.0,
             y: self.size.1,
-        } - span)
+        } - bb.span())
             / 2.0;
 
         for index in self.points.index_iter().filter(index_filter) {
             let coordinate = self.points.index_to_coordinate(&index);
-            let (offset_x, offset_y) = (grid_offset + coordinate - bb_min).to_cartesian();
-            let group = self.render_shape_group(&index).set(
-                "transform",
-                format!("translate({offset_x:.3},{offset_y:.3})"),
-            );
-            document = document.add(group);
+            let offset = grid_offset + coordinate - bb.min();
+
+            if let Some(group) = self.render_shape_group(&index, &offset) {
+                document = document.add(group);
+            }
         }
 
         document
@@ -85,14 +87,35 @@ impl<P: PointSet> Canvas<P> {
             )
     }
 
-    fn render_shape_group(&self, index: &P::Index) -> Group {
-        let mut group = Group::new();
+    fn render_shape_group(&self, index: &P::Index, offset: &Coordinate) -> Option<Group> {
+        let (offset_x, offset_y) = offset.to_cartesian();
 
-        for shape in &self.shapes {
-            group = group.add(shape.generate_path(index));
+        let paths = &mut self
+            .shapes
+            .iter()
+            .filter_map(|shape| {
+                let (path, bb) = shape.generate_path_and_bb(&index);
+                if bb.intersects(
+                    &(BoundingBox::from_point(Coordinate::Cartesian {
+                        x: self.size.0,
+                        y: self.size.1,
+                    }) - *offset),
+                ) {
+                    Some(path)
+                } else {
+                    None
+                }
+            })
+            .peekable();
+
+        if paths.peek().is_some() {
+            Some(paths.fold(Group::new(), |group, path| group.add(path)).set(
+                "transform",
+                format!("translate({offset_x:.3},{offset_y:.3})"),
+            ))
+        } else {
+            None
         }
-
-        group
     }
 }
 

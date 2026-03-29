@@ -10,6 +10,11 @@ pub enum Coordinate {
 }
 
 impl Coordinate {
+    /// Get the origin (0, 0)
+    pub fn origin() -> Self {
+        Coordinate::default()
+    }
+
     /// Get the cartesian coordinates
     #[inline]
     pub fn to_cartesian(self) -> (f64, f64) {
@@ -51,6 +56,12 @@ impl Coordinate {
         let (other_x, other_y) = other.to_cartesian();
 
         ((self_x - other_x).powi(2) + (self_y - other_y).powi(2)).sqrt()
+    }
+}
+
+impl Default for Coordinate {
+    fn default() -> Self {
+        Coordinate::Cartesian { x: 0.0, y: 0.0 }
     }
 }
 

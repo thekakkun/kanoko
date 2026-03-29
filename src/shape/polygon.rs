@@ -8,7 +8,7 @@ use rand_distr::Normal;
 
 use crate::{
     Color,
-    geometry::{Angle, Coordinate},
+    geometry::{Angle, BoundingBox, Coordinate},
     shape::{IndexFn, Shape},
 };
 use polygon_builder::{IsUnset, SetColorFn, SetCvFn, SetRotationFn, SetSidesFn, SetSizeFn, State};
@@ -134,17 +134,14 @@ impl<I> Polygon<I> {
 
         side_coordinates
     }
-}
 
-impl<I: Copy> Shape for Polygon<I> {
-    type Index = I;
-
-    fn generate_path(&self, index: &Self::Index) -> Path {
+    fn generate_path(
+        &self,
+        color: &Color,
+        corner_coordinates: &[Coordinate],
+        side_coordinates: &[Coordinate],
+    ) -> Path {
         let mut data = Data::new();
-        let color = (self.color_fn)(index);
-
-        let corner_coordinates = self.generate_corner_coordinates(index);
-        let side_coordinates = Self::generate_side_coordinates(&corner_coordinates);
 
         if let Some(first) = side_coordinates.first() {
             let (x, y) = first.to_rounded_cartesian(3);
@@ -167,6 +164,25 @@ impl<I: Copy> Shape for Polygon<I> {
             .set("d", data.close())
             .set("fill", color.to_svg_color())
             .set("fill-opacity", color.to_opacity_percent())
+    }
+
+    fn generate_bb(&self, corner_coordinates: &[Coordinate]) -> BoundingBox {
+        BoundingBox::from_points(corner_coordinates.into_iter())
+    }
+}
+
+impl<I: Copy> Shape for Polygon<I> {
+    type Index = I;
+
+    fn generate_path_and_bb(&self, index: &Self::Index) -> (Path, BoundingBox) {
+        let corner_coordinates = self.generate_corner_coordinates(index);
+        let side_coordinates = Self::generate_side_coordinates(&corner_coordinates);
+
+        let color = (self.color_fn)(index);
+        (
+            self.generate_path(&color, &corner_coordinates, &side_coordinates),
+            self.generate_bb(&corner_coordinates),
+        )
     }
 }
 

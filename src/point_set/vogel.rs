@@ -4,7 +4,7 @@ use std::f64::consts::PI;
 use bon::bon;
 
 use crate::{
-    geometry::{Angle, Coordinate},
+    geometry::{Angle, BoundingBox, Coordinate},
     point_set::PointSet,
 };
 
@@ -67,8 +67,8 @@ impl PointSet for Vogel {
         Coordinate::Polar { r, phi }
     }
 
-    fn bounding_box(&self) -> (Coordinate, Coordinate) {
-        (
+    fn bounding_box(&self) -> BoundingBox {
+        BoundingBox::new(
             Coordinate::Cartesian {
                 x: -self.radius,
                 y: -self.radius,

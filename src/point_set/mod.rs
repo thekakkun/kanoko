@@ -2,7 +2,7 @@ pub mod lattice;
 pub mod poisson_disk;
 pub mod vogel;
 
-use crate::geometry::Coordinate;
+use crate::geometry::{BoundingBox, Coordinate};
 
 /// A trait for putting points on a 2D plane.
 ///
@@ -22,5 +22,5 @@ pub trait PointSet {
     /// The size of the box that would contain all coordinates for the set
     ///
     /// This is used to center the `PointSet` within the `Canvas`.
-    fn bounding_box(&self) -> (Coordinate, Coordinate);
+    fn bounding_box(&self) -> BoundingBox;
 }

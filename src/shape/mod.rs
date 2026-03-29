@@ -3,6 +3,8 @@ mod polygon;
 pub use polygon::Polygon;
 use svg::node::element::Path;
 
+use crate::geometry::BoundingBox;
+
 pub type IndexFn<I, T> = Box<dyn Fn(&I) -> T>;
 
 /// A trait for defining a shape
@@ -13,5 +15,5 @@ pub trait Shape {
     ///
     /// This `index` can be used by implementers to control the generated shape based on where it
     /// is in the [`PointSet`](crate::point_set::PointSet).
-    fn generate_path(&self, index: &Self::Index) -> Path;
+    fn generate_path_and_bb(&self, index: &Self::Index) -> (Path, BoundingBox);
 }

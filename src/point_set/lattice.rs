@@ -5,7 +5,7 @@ use bon::bon;
 use itertools::iproduct;
 
 use crate::{
-    geometry::{Angle, Coordinate},
+    geometry::{Angle, BoundingBox, Coordinate},
     point_set::PointSet,
 };
 
@@ -132,7 +132,7 @@ impl PointSet for Lattice {
         Coordinate::Cartesian { x, y }
     }
 
-    fn bounding_box(&self) -> (Coordinate, Coordinate) {
+    fn bounding_box(&self) -> BoundingBox {
         let max_x = f64::from(self.grid_size.0 - 1) * self.len_a
             + if 2 <= self.grid_size.1 {
                 self.len_b * self.theta_cos
@@ -141,7 +141,7 @@ impl PointSet for Lattice {
             };
         let max_y = f64::from(self.grid_size.1 - 1) * self.len_b * self.theta_sin;
 
-        (
+        BoundingBox::new(
             Coordinate::Cartesian { x: 0.0, y: 0.0 },
             Coordinate::Cartesian { x: max_x, y: max_y },
         )
