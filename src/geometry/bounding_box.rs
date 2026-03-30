@@ -1,7 +1,4 @@
-use std::{
-    borrow::Borrow,
-    ops::{Add, Sub},
-};
+use std::ops::{Add, Sub};
 
 use crate::geometry::Coordinate;
 
@@ -24,30 +21,22 @@ impl BoundingBox {
     }
 
     /// Create a new bounding box that encloses all points
-    pub fn from_points<I>(points: I) -> Self
+    pub fn from_points<'a, I>(points: I) -> Self
     where
-        I: IntoIterator,
-        I::Item: Borrow<Coordinate>,
+        I: IntoIterator<Item = &'a Coordinate>,
     {
-        let mut min_x = f64::INFINITY;
-        let mut min_y = f64::INFINITY;
-        let mut max_x = f64::NEG_INFINITY;
-        let mut max_y = f64::NEG_INFINITY;
-
-        let mut has_points = false;
-
-        for p in points {
-            let (x, y) = p.borrow().to_cartesian();
-            min_x = min_x.min(x);
-            min_y = min_y.min(y);
-            max_x = max_x.max(x);
-            max_y = max_y.max(y);
-            has_points = true;
-        }
-
-        if !has_points {
-            return Self(Coordinate::origin(), Coordinate::origin());
-        }
+        let (min_x, min_y, max_x, max_y) = points.into_iter().fold(
+            (
+                f64::INFINITY,
+                f64::INFINITY,
+                f64::NEG_INFINITY,
+                f64::NEG_INFINITY,
+            ),
+            |(min_x, min_y, max_x, max_y), point| {
+                let (x, y) = point.to_cartesian();
+                (min_x.min(x), min_y.min(y), max_x.max(x), max_y.max(y))
+            },
+        );
 
         Self(
             Coordinate::Cartesian { x: min_x, y: min_y },

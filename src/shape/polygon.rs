@@ -167,7 +167,7 @@ impl<I> Polygon<I> {
     }
 
     fn generate_bb(&self, corner_coordinates: &[Coordinate]) -> BoundingBox {
-        BoundingBox::from_points(corner_coordinates.into_iter())
+        BoundingBox::from_points(corner_coordinates)
     }
 }
 
